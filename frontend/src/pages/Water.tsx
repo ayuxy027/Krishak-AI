@@ -208,3 +208,5 @@ export const Chatbot: React.FC<ChatbotProps> = ({ t }) => {
     </div>
   );
 };
+
+export default Chatbot;

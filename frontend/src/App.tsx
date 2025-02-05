@@ -5,7 +5,9 @@ import { Home } from './pages/Home';
 import { DiseaseDetection } from './pages/DiseaseDetection';
 import { CropAdvisory } from './pages/CropAdvisory';
 import { MarketInsights } from './pages/MarketInsights';
-import { Chatbot } from './pages/Chatbot';
+import Water from './pages/Water'; 
+import Chatbot from './components/Chatbot';
+
 
 function App() {
   const { language, setLanguage, translations, t } = useTranslation();
@@ -22,13 +24,16 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Navbar language={language} setLanguage={setLanguage} t={t} />
+        {/* @ts-ignore  */}
+        <Chatbot t={t} />
         <main className="pt-16">
           <Routes>
+            {/* @ts-ignore  */}
             <Route path="/" element={<Home t={t} />} />
             <Route path="/disease-detection" element={<DiseaseDetection t={t} />} />
             <Route path="/crop-advisory" element={<CropAdvisory t={t} />} />
             <Route path="/market-insights" element={<MarketInsights t={t} />} />
-            <Route path="/chatbot" element={<Chatbot t={t} />} />
+            <Route path="/chatbot" element={<Water t={t} />} />
           </Routes>
         </main>
       </div>
