@@ -8,15 +8,11 @@ import {
   MessageSquare, 
   ArrowRight, 
   Users, 
-  Sparkles, 
-  ExternalLink,
+  Sparkles,
   TrendingUp,
-  Clock
+  Clock,
+  ChevronRight
 } from 'lucide-react';
-
-interface HomeProps {
-  t: (key: string) => string;
-}
 
 interface Stat {
   value: string;
@@ -36,28 +32,38 @@ interface Feature {
   badge?: string;
 }
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
-};
-
 const StatDisplay = ({ stat }: { stat: Stat }) => (
-  <div className="p-4 rounded-xl backdrop-blur-sm transition-colors duration-300 bg-white/10 hover:bg-white/15">
-    <div className="flex justify-between items-center mb-1">
-      <p className="text-2xl font-bold">{stat.value}</p>
+  <motion.div 
+    whileHover={{ scale: 1.02 }}
+    className="p-4 rounded-xl shadow-sm transition-all duration-300 bg-white/95 hover:shadow-md"
+  >
+    <div className="flex justify-between items-center mb-2">
+      <motion.p 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="text-2xl font-bold text-gray-800"
+      >
+        {stat.value}
+      </motion.p>
       {stat.trend && (
-        <span className={`flex items-center text-xs ${stat.trend > 0 ? 'text-green-300' : 'text-red-300'}`}>
+        <motion.span 
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className={`flex items-center text-sm font-medium px-2 py-0.5 rounded-full ${
+            stat.trend > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+          }`}
+        >
           <TrendingUp className={`w-3 h-3 mr-1 ${stat.trend < 0 ? 'rotate-180' : ''}`} />
           {Math.abs(stat.trend)}%
-        </span>
+        </motion.span>
       )}
     </div>
-    <div className="flex items-center space-x-1">
+    <div className="flex items-center space-x-2">
       {stat.icon}
-      <p className="text-xs opacity-75">{stat.label}</p>
+      <p className="text-sm font-medium text-gray-600">{stat.label}</p>
     </div>
-  </div>
+  </motion.div>
 );
 
 const FeatureCard: React.FC<Feature & { index: number }> = ({ 
@@ -87,12 +93,12 @@ const FeatureCard: React.FC<Feature & { index: number }> = ({
         }
       }
     }}
-    whileHover={{ scale: 1.01 }}
+    whileHover={{ translateY: -4 }}
     className={`
       ${color} 
       rounded-2xl p-6 
       transition-all duration-300 
-      hover:shadow-xl 
+      shadow-lg hover:shadow-xl
       relative 
       overflow-hidden
       group
@@ -105,50 +111,72 @@ const FeatureCard: React.FC<Feature & { index: number }> = ({
     <div className="flex relative z-10 flex-col h-full">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-start space-x-3">
-          <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
-            <Icon className="flex-shrink-0 w-5 h-5" />
-          </div>
+          <motion.div 
+            whileHover={{ rotate: 5 }}
+            className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm"
+          >
+            <Icon className="w-5 h-5" />
+          </motion.div>
           <div>
             {badge && (
-              <span className="inline-block px-2 py-1 mb-2 text-xs font-medium rounded-full bg-white/20">
+              <motion.span 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-block px-2.5 py-1 mb-2 text-xs font-medium rounded-full bg-white/20"
+              >
                 {badge}
-              </span>
+              </motion.span>
             )}
             <h3 className="text-lg font-semibold leading-tight">{title}</h3>
           </div>
         </div>
         {link && (
-          <Link to="#" className="opacity-0 transition-all duration-300 group-hover:opacity-100">
-            <motion.div whileHover={{ x: 3 }} className="p-2">
-              <ExternalLink className="w-4 h-4" />
+          <Link 
+            to="#" 
+            className="opacity-0 transition-all duration-300 group-hover:opacity-100"
+          >
+            <motion.div 
+              whileHover={{ x: 3 }} 
+              className="p-2 rounded-lg hover:bg-white/10"
+            >
+              <ChevronRight className="w-4 h-4" />
             </motion.div>
           </Link>
         )}
       </div>
       
-      <p className="flex-1 max-w-lg opacity-90 text-sm/relaxed">{description}</p>
+      <p className="flex-1 max-w-lg opacity-90 text-sm/relaxed">
+        {description}
+      </p>
       
       {stats && (
-        <div className="grid grid-cols-2 gap-3 mt-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 gap-3 mt-6"
+        >
           {stats.map((stat, i) => (
             <StatDisplay key={i} stat={stat} />
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
     
     <div className="absolute inset-0 bg-gradient-to-br to-transparent pointer-events-none from-white/10" />
-    <div className="absolute -right-8 -bottom-8 w-40 h-40 rounded-full opacity-50 blur-3xl transition-opacity bg-white/10 group-hover:opacity-70" />
+    <motion.div 
+      className="absolute -right-8 -bottom-8 w-40 h-40 rounded-full opacity-40 blur-3xl transition-opacity duration-300 bg-white/10 group-hover:opacity-60" 
+    />
   </motion.div>
 );
 
-export const Home: React.FC<HomeProps> = ({ t }) => {
+export const Home: React.FC = () => {
   const features: Feature[] = [
     {
       icon: Plant,
-      title: t('home.features.diseaseDetection.title'),
-      description: t('home.features.diseaseDetection.description'),
-      color: 'bg-gradient-to-br from-primary-600 to-primary-800 text-white',
+      title: "Early Disease Detection",
+      description: "Take a photo of your crops to instantly identify diseases and get treatment recommendations",
+      color: 'bg-gradient-to-br from-primary-600 to-primary-700 text-white',
       size: 'large',
       badge: 'New AI Model',
       stats: [
@@ -156,7 +184,7 @@ export const Home: React.FC<HomeProps> = ({ t }) => {
           value: '98.2%', 
           label: 'Detection Accuracy',
           trend: 2.4,
-          icon: <span className="mr-1 w-3 h-3 bg-green-400 rounded-full" />
+          icon: <span className="w-3 h-3 bg-green-400 rounded-full" />
         },
         { 
           value: '24/7', 
@@ -178,9 +206,9 @@ export const Home: React.FC<HomeProps> = ({ t }) => {
     },
     {
       icon: Brain,
-      title: t('home.features.cropAdvisory.title'),
-      description: t('home.features.cropAdvisory.description'),
-      color: 'bg-gradient-to-br from-purple-600 to-indigo-700 text-white',
+      title: "Smart Crop Advisory",
+      description: "Get personalized advice based on your soil, weather, and crop conditions",
+      color: 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white',
       size: 'tall',
       badge: 'Beta',
       stats: [
@@ -199,9 +227,9 @@ export const Home: React.FC<HomeProps> = ({ t }) => {
     },
     {
       icon: BarChart3,
-      title: t('home.features.marketInsights.title'),
-      description: t('home.features.marketInsights.description'),
-      color: 'bg-gradient-to-br from-orange-500 to-amber-700 text-white',
+      title: "Market Prices",
+      description: "Stay updated with real-time market prices and connect with buyers directly",
+      color: 'bg-gradient-to-br from-green-600 to-green-700 text-white',
       stats: [
         { 
           value: '45', 
@@ -213,9 +241,9 @@ export const Home: React.FC<HomeProps> = ({ t }) => {
     },
     {
       icon: MessageSquare,
-      title: t('home.features.aiAssistant.title'),
-      description: t('home.features.aiAssistant.description'),
-      color: 'bg-gradient-to-br from-teal-500 to-emerald-700 text-white',
+      title: "24/7 Farming Assistant",
+      description: "Get instant answers to your farming questions in your preferred language",
+      color: 'bg-gradient-to-br from-primary-600 to-primary-700 text-white',
       size: 'wide',
       badge: 'Popular',
       stats: [
@@ -234,9 +262,9 @@ export const Home: React.FC<HomeProps> = ({ t }) => {
     },
     {
       icon: Users,
-      title: t('home.features.community.title'),
-      description: t('home.features.community.description'),
-      color: 'bg-gradient-to-br from-blue-600 to-blue-800 text-white',
+      title: "Community Support",
+      description: "Connect with fellow farmers and experts worldwide",
+      color: 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white',
       stats: [
         { 
           value: '25K+', 
@@ -248,9 +276,9 @@ export const Home: React.FC<HomeProps> = ({ t }) => {
     },
     {
       icon: Sparkles,
-      title: t('home.features.innovation.title'),
-      description: t('home.features.innovation.description'),
-      color: 'bg-gradient-to-br from-rose-500 to-pink-700 text-white',
+      title: "Innovative Solutions",
+      description: "Explore cutting-edge farming technologies and practices",
+      color: 'bg-gradient-to-br from-green-600 to-green-700 text-white',
       badge: 'Coming Soon',
       link: true
     }
@@ -258,52 +286,51 @@ export const Home: React.FC<HomeProps> = ({ t }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="px-4 py-16 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <div className="px-4 py-20 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <motion.div
-          initial="initial"
-          animate="animate"
-          variants={fadeInUp}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
           className="mx-auto mb-20 max-w-2xl text-center"
         >
           <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
             className="inline-block mb-4"
-            variants={fadeInUp}
           >
-            <span className="px-4 py-1.5 rounded-full bg-primary-100 text-primary-700 text-sm font-medium">
-              {t('home.hero.badge')}
+            <span className="px-4 py-1.5 rounded-full bg-primary-50 text-primary-600 text-sm font-medium">
+              Launching Soon
             </span>
           </motion.div>
           
           <motion.h1 
-            className="mb-6 text-4xl font-bold leading-tight text-transparent bg-clip-text bg-gradient-to-r md:text-5xl lg:text-6xl from-primary-600 to-primary-400"
-            variants={fadeInUp}
+            className="mb-6 text-4xl font-bold leading-tight text-transparent bg-clip-text bg-gradient-to-r md:text-5xl lg:text-6xl from-primary-600 to-primary-500"
           >
-            {t('home.hero.title')}
+            Smart Farming Made Simple
           </motion.h1>
           
           <motion.p 
             className="mx-auto mb-8 max-w-xl text-lg text-gray-600"
-            variants={fadeInUp}
           >
-            {t('home.hero.description')}
+            Use AI to make better farming decisions, detect crop diseases early, and maximize your yield
           </motion.p>
           
           <motion.div 
             className="flex flex-wrap gap-4 justify-center"
-            variants={fadeInUp}
           >
             <Link
               to="/disease-detection"
-              className="inline-flex items-center px-6 py-3 rounded-xl bg-primary-600 text-white hover:bg-primary-700 transition-all duration-300 shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 transform hover:-translate-y-0.5"
+              className="inline-flex items-center px-6 py-3 rounded-xl bg-primary-600 text-white hover:bg-primary-700 transition-all duration-300 shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 transform hover:-translate-y-0.5"
             >
-              {t('home.hero.getStarted')}
+              Get Started
               <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
             <Link
               to="/chatbot"
-              className="inline-flex items-center px-6 py-3 rounded-xl bg-white text-gray-800 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 shadow-lg shadow-gray-200/50 hover:shadow-xl transform hover:-translate-y-0.5"
+              className="inline-flex items-center px-6 py-3 rounded-xl bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 shadow-lg shadow-gray-200/40 hover:shadow-xl transform hover:-translate-y-0.5"
             >
-              {t('home.hero.tryAI')}
+              Try AI Assistant
               <MessageSquare className="ml-2 w-4 h-4" />
             </Link>
           </motion.div>
