@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Leaf, Brain, BarChart3, MessageSquare, Globe2 } from 'lucide-react';
+import { Menu, X, Leaf, Brain, BarChart3, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Language } from '../types';
 import { cn } from '../utils/cn';
@@ -11,7 +11,7 @@ interface NavbarProps {
   t: (key: string) => string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ language, setLanguage, t }) => {
+export const Navbar: React.FC<NavbarProps> = ({ t }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
@@ -108,20 +108,6 @@ export const Navbar: React.FC<NavbarProps> = ({ language, setLanguage, t }) => {
                   </div>
                 </NavLink>
               ))}
-              <div className="px-4 py-3">
-                <div className="relative">
-                  <select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value as Language)}
-                    className="py-2 pr-12 pl-4 w-full text-sm bg-white rounded-lg border border-gray-200 transition-shadow appearance-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
-                  >
-                    <option value="en">English</option>
-                    <option value="hi">हिंदी</option>
-                    <option value="mr">मराठी</option>
-                  </select>
-                  <Globe2 className="absolute right-4 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
             </div>
           </motion.div>
         )}
