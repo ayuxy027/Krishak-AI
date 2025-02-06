@@ -319,7 +319,7 @@ export const Home: React.FC = () => {
             className="flex flex-wrap gap-4 justify-center"
           >
             <Link
-              to="/disease-detection"
+              to="/crop-advisory"
               className="inline-flex items-center px-6 py-3 rounded-xl bg-primary-600 text-white hover:bg-primary-700 transition-all duration-300 shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 transform hover:-translate-y-0.5"
             >
               Get Started
