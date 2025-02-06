@@ -31,25 +31,6 @@ const WaterPrediction: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 to-cyan-50/30">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="px-6 py-6 border-b backdrop-blur-md bg-white/80"
-      >
-        <div className="flex items-center mx-auto max-w-7xl">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-xl">
-              <Droplet className="text-blue-600" size={28} />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Water Level Predictor</h1>
-              <p className="text-sm text-gray-500">Check water levels and plant recommendations</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Main Content */}
       <div className="p-6 mx-auto max-w-4xl">
         {/* City Selection */}
@@ -128,13 +109,12 @@ const WaterPrediction: React.FC = () => {
 
                 {/* Status Message */}
                 <div
-                  className={`mt-4 p-4 rounded-xl flex items-center gap-2 ${
-                    selectedCity.idealWaterLevel === "yes"
+                  className={`mt-4 p-4 rounded-xl flex items-center gap-2 ${selectedCity.idealWaterLevel === "yes"
                       ? "bg-green-100"
                       : selectedCity.idealWaterLevel === "mediocre"
-                      ? "bg-yellow-100"
-                      : "bg-red-100"
-                  }`}
+                        ? "bg-yellow-100"
+                        : "bg-red-100"
+                    }`}
                 >
                   <AlertCircle
                     size={20}
@@ -142,16 +122,16 @@ const WaterPrediction: React.FC = () => {
                       selectedCity.idealWaterLevel === "yes"
                         ? "text-green-600"
                         : selectedCity.idealWaterLevel === "mediocre"
-                        ? "text-yellow-600"
-                        : "text-red-600"
+                          ? "text-yellow-600"
+                          : "text-red-600"
                     }
                   />
                   <span className="text-sm">
                     {selectedCity.idealWaterLevel === "yes"
                       ? "Water level is ideal for most plants"
                       : selectedCity.idealWaterLevel === "mediocre"
-                      ? "Water level requires monitoring"
-                      : "Water level is below recommended levels"}
+                        ? "Water level requires monitoring"
+                        : "Water level is below recommended levels"}
                   </span>
                 </div>
               </div>

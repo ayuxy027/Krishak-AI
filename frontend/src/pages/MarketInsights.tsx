@@ -1,6 +1,5 @@
 import React from 'react';
 import { TrendingUp, Users, Bell, DollarSign, BarChart2 } from 'lucide-react';
-
 interface MarketInsightsProps {
   t: (key: string) => string;
 }
