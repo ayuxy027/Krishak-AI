@@ -1,0 +1,56 @@
+{
+    "cityData": [
+      {
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "waterLevel": 72,
+        "idealWaterLevel": "yes",
+        "recommendedPlants": {
+          "suggestedPlants":["Banana","Vaishnavi"]  ,
+          "lowWaterRequirement": ["Cactus", "Succulent", "Aloe Vera"],
+          "highWaterRequirement": ["Fern", "Peace Lily", "Bamboo"]
+        }
+      },
+      {
+        "city": "Pune",
+        "state": "Maharashtra",
+        "waterLevel": 45,
+        "idealWaterLevel": "mediocre",
+        "recommendedPlants": {
+          "lowWaterRequirement": ["Lavender", "Thyme", "Sage"],
+          "highWaterRequirement": ["Spider Plant", "Philodendron", "Mint"]
+        }
+      },
+      {
+        "city": "Nashik",
+        "state": "Maharashtra",
+        "waterLevel": 20,
+        "idealWaterLevel": "no",
+        "recommendedPlants": {
+          "lowWaterRequirement": ["Sedum", "Agave", "Echeveria"],
+          "highWaterRequirement": []
+        }
+      },
+      {
+        "city": "Nagpur",
+        "state": "Maharashtra",
+        "waterLevel": 85,
+        "idealWaterLevel": "yes",
+        "recommendedPlants": {
+          "lowWaterRequirement": ["Rosemary", "Jade Plant", "Succulent"],
+          "highWaterRequirement": ["Money Plant", "Hibiscus", "Mint"]
+        }
+      },
+      {
+        "city": "Aurangabad",
+        "state": "Maharashtra",
+        "waterLevel": 100,
+        "idealWaterLevel": "yes",
+        "recommendedPlants": {
+          "lowWaterRequirement": ["Aloe Vera", "Cactus", "Lavender"],
+          "highWaterRequirement": ["Areca Palm", "Peace Lily", "Spider Plant"]
+        }
+      }
+    ]
+  }
+  

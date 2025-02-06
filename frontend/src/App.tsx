@@ -33,7 +33,8 @@ function App() {
             <Route path="/disease-detection" element={<DiseaseDetection t={t} />} />
             <Route path="/crop-advisory" element={<CropAdvisory t={t} />} />
             <Route path="/market-insights" element={<MarketInsights t={t} />} />
-            <Route path="/chatbot" element={<Water t={t} />} />
+            {/* @ts-ignore  */}
+            <Route path="/prediction" element={<Water t={t} />} />
           </Routes>
         </main>
       </div>
