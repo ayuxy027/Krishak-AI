@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { useTranslation } from './utils/useTranslation';
 import { Home } from './pages/Home';
-import { DiseaseDetection } from './pages/DiseaseDetection';
+import DiseaseDetection  from './pages/DiseaseDetection';
 import { CropAdvisory } from './pages/CropAdvisory';
 import { MarketInsights } from './pages/MarketInsights';
 import Water from './pages/Water'; 
