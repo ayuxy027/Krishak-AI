@@ -26,8 +26,8 @@ export const Navbar: React.FC<NavbarProps> = ({ language, setLanguage, t }) => {
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex-shrink-0">
-            <NavLink 
-              to="/" 
+            <NavLink
+              to="/"
               className="flex items-center space-x-3 group"
             >
               <div className="p-2 rounded-lg transition-colors bg-primary-50 group-hover:bg-primary-100">
@@ -60,22 +60,6 @@ export const Navbar: React.FC<NavbarProps> = ({ language, setLanguage, t }) => {
               </NavLink>
             ))}
           </div>
-
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <div className="relative">
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as Language)}
-                className="py-2 pr-12 pl-4 text-sm bg-white rounded-lg border border-gray-200 transition-shadow appearance-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
-              >
-                <option value="en">English</option>
-                <option value="hi">हिंदी</option>
-                <option value="mr">मराठी</option>
-              </select>
-              <Globe2 className="absolute right-4 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
