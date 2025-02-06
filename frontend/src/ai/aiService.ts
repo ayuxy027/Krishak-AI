@@ -58,14 +58,14 @@ export const getAIResponse = async (userInput: string): Promise<string> => {
       {
         parts: [
           {
-            text: getAIPrompt(userInput)
+            text: getAIPrompt(userInput) // Generates an AI prompt specifically for Kisan-AI
           }
         ]
       }
     ],
     generationConfig: {
-      temperature: 0.9,
-      topK: 40,
+      temperature: 0.8, // Keeps responses informative yet precise
+      topK: 50,
       topP: 1,
       maxOutputTokens: 2048
     },
@@ -107,13 +107,13 @@ export const getAIResponse = async (userInput: string): Promise<string> => {
     return response.data.candidates[0].content.parts[0].text;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Gemini API Error:', {
+      console.error('Kisan-AI API Error:', {
         status: error.response?.status,
         data: error.response?.data
       });
-      throw new Error(`Gemini API Error: ${error.response?.data?.error?.message || error.message}`);
+      throw new Error(`Kisan-AI API Error: ${error.response?.data?.error?.message || error.message}`);
     }
-    console.error('Error fetching response from Gemini API:', error);
+    console.error('Error fetching response from Kisan-AI API:', error);
     throw error;
   }
 };
