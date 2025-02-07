@@ -125,8 +125,8 @@ const WaterPrediction: React.FC = () => {
             Water Management Dashboard
           </h1>
           <p className="mt-3 text-sm text-gray-600 md:mt-4 md:text-base">Monitor water levels and get plant recommendations</p>
+          <p className="mt-2 text-sm text-gray-600 md:mt-2 md:text-base">Data as of NITI AYOG & GSDA 2021-2023 Survey</p>
         </div>
-
         <div className="px-4 mx-auto mb-8 max-w-xl md:mb-12 sm:px-0">
           <div className="p-2 rounded-xl backdrop-blur-sm bg-white/20">
             <Select
@@ -144,7 +144,7 @@ const WaterPrediction: React.FC = () => {
                 control: (base) => ({
                   ...base,
                   background: 'transparent',
-                  borderColor: 'rgba(255,255,255,0.2)',
+                  borderColor: '#0000',
                   borderRadius: '0.75rem',
                   padding: '0.25rem'
                 })
