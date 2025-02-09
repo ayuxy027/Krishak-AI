@@ -135,7 +135,7 @@ const translations = {
 
 const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
   darkMode,
-  characterLimit = 50,
+  characterLimit = 100,
   cooldownDuration = 15,
   language = "en",
   showTimer = true,
