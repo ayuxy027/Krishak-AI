@@ -4,7 +4,7 @@
  */
 
 interface KisanAIChatbot {
-  userInput: string;
+  userInput: string
 }
 
 const generateChatbotPrompt = ({ userInput }: KisanAIChatbot): string => {
@@ -44,20 +44,20 @@ const generateChatbotPrompt = ({ userInput }: KisanAIChatbot): string => {
   - **Error Handling:** Provide user-friendly feedback for invalid inputs.
 
   **Customization and Multilingual Support:**
-  - Offer responses in regional languages based on the farmer’s preference.
+  - Offer responses in regional languages based on the farmer's preference.
   - Provide localized insights such as weather, soil conditions, and market prices.
 
   ${userInput}
 
   **Primary Role:**
   Your responsibility is to assist farmers with **agricultural problem-solving, crop disease detection, and farming solutions**. Avoid unrelated topics and ensure all responses are **focused, relevant, and actionable**. Encourage users to **upload images for analysis**, **use scheduling tools**, and **stay informed about market trends**.
-  `.trim();
-};
+  `.trim()
+}
 
 const kisanAIChatbot = (userInput: string): string => {
-  return generateChatbotPrompt({ userInput });
-};
+  return generateChatbotPrompt({ userInput })
+}
 
-export default kisanAIChatbot;
-export { generateChatbotPrompt };
-export type { KisanAIChatbot };
+export default kisanAIChatbot
+export { generateChatbotPrompt }
+export type { KisanAIChatbot }
