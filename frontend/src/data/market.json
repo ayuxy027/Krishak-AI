@@ -1,0 +1,152 @@
+{
+  "cities": [
+      {
+          "city": "Aurangabad",
+          "markets": [
+              {
+                  "name": "Kranti Chowk Market",
+                  "cropPrices": {
+                      "Wheat": "₹2,150/quintal",
+                      "Rice": "₹3,400/quintal",
+                      "Tur Dal": "₹5,800/quintal"
+                  },
+                  "marketTimings": "6 AM - 6 PM",
+                  "tradingDays": "Monday to Saturday"
+              },
+              {
+                  "name": "Paithan Road Market",
+                  "cropPrices": {
+                      "Wheat": "₹2,100/quintal",
+                      "Rice": "₹3,300/quintal",
+                      "Tur Dal": "₹5,900/quintal"
+                  },
+                  "marketTimings": "7 AM - 5 PM",
+                  "tradingDays": "Monday to Friday"
+              },
+              {
+                  "name": "Gulmandi Market",
+                  "cropPrices": {
+                      "Wheat": "₹2,180/quintal",
+                      "Rice": "₹3,450/quintal",
+                      "Tur Dal": "₹6,000/quintal"
+                  },
+                  "marketTimings": "8 AM - 4 PM",
+                  "tradingDays": "Tuesday to Sunday"
+              }
+          ],
+          "marketStats": {
+              "dailyTradingVolume": "₹2.5 Cr",
+              "activeBuyers": 400,
+              "averagePricePerQuintal": "₹3,200",
+              "monthlyTransactions": 1500,
+              "topCommodity": "Tur Dal"
+          },
+          "priceAlerts": [
+              {
+                  "crop": "Wheat",
+                  "change": "+3.5%",
+                  "price": "₹2,250/quintal",
+                  "time": "2 hours ago",
+                  "reason": "Increased demand from exporters"
+              },
+              {
+                  "crop": "Tur Dal",
+                  "change": "+4.1%",
+                  "price": "₹6,200/quintal",
+                  "time": "4 hours ago",
+                  "reason": "Supply shortage in local markets"
+              },
+              {
+                  "crop": "Rice",
+                  "change": "-2.2%",
+                  "price": "₹3,300/quintal",
+                  "time": "6 hours ago",
+                  "reason": "Harvest season peak"
+              }
+          ],
+          "buyers": [
+              {
+                  "name": "Aurangabad Agro Pvt Ltd",
+                  "type": "Processor",
+                  "status": "Active",
+                  "volume": "12,000 quintals",
+                  "contact": "9098765432"
+              }
+          ]
+      },
+      {
+          "city": "Jalgaon",
+          "markets": [
+              {
+                  "name": "Jalgaon Krishi Market",
+                  "cropPrices": {
+                      "Wheat": "₹2,200/quintal",
+                      "Rice": "₹3,500/quintal",
+                      "Tur Dal": "₹6,100/quintal"
+                  },
+                  "marketTimings": "6 AM - 6 PM",
+                  "tradingDays": "Monday to Saturday"
+              },
+              {
+                  "name": "Mehrun Market",
+                  "cropPrices": {
+                      "Wheat": "₹2,250/quintal",
+                      "Rice": "₹3,450/quintal",
+                      "Tur Dal": "₹6,100/quintal"
+                  },
+                  "marketTimings": "7 AM - 5 PM",
+                  "tradingDays": "Monday to Friday"
+              },
+              {
+                  "name": "Ajanta Road Market",
+                  "cropPrices": {
+                      "Wheat": "₹2,300/quintal",
+                      "Rice": "₹3,600/quintal",
+                      "Tur Dal": "₹6,200/quintal"
+                  },
+                  "marketTimings": "8 AM - 4 PM",
+                  "tradingDays": "Tuesday to Sunday"
+              }
+          ],
+          "marketStats": {
+              "dailyTradingVolume": "₹3 Cr",
+              "activeBuyers": 420,
+              "averagePricePerQuintal": "₹3,300",
+              "monthlyTransactions": 1700,
+              "topCommodity": "Cotton"
+          },
+          "priceAlerts": [
+              {
+                  "crop": "Wheat",
+                  "change": "+3%",
+                  "price": "₹2,300/quintal",
+                  "time": "5 hours ago",
+                  "reason": "Export demand increase"
+              },
+              {
+                  "crop": "Tur Dal",
+                  "change": "+2.5%",
+                  "price": "₹6,300/quintal",
+                  "time": "8 hours ago",
+                  "reason": "Shortage in local supply"
+              },
+              {
+                  "crop": "Rice",
+                  "change": "-1.5%",
+                  "price": "₹3,400/quintal",
+                  "time": "2 days ago",
+                  "reason": "Local harvest season"
+              }
+          ],
+          "buyers": [
+              {
+                  "name": "Jalgaon Agri Exporters",
+                  "type": "Exporter",
+                  "status": "Active",
+                  "volume": "15,000 quintals",
+                  "contact": "9001234567"
+              }
+          ]
+      }
+  ]
+}
