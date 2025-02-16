@@ -6,10 +6,16 @@ import { motion, AnimatePresence, type Variants } from "framer-motion"
 import { Trash2Icon, X, Minimize2, Maximize2, Send } from "lucide-react"
 import { FaRocketchat } from "react-icons/fa"
 import aiService from "../ai/aiService"
+import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 interface Message {
   text: string
   sender: "user" | "ai"
+  animate?: boolean
 }
 
 interface AgriTechChatbotProps {
@@ -49,11 +55,10 @@ const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { darkMode: 
 }) => {
   return (
     <input
-      className={`flex px-4 py-2 w-full h-12 text-sm rounded-full border transition-all duration-300 backdrop-blur-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
-        darkMode
-          ? "bg-gray-900/80 border-primary-700 focus:ring-primary-600 text-primary-200"
-          : "bg-gray-50/80 border-primary-500 focus:ring-primary-600 text-primary-800"
-      } ${className}`}
+      className={`flex px-4 py-2 w-full h-12 text-sm rounded-full border transition-all duration-300 backdrop-blur-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${darkMode
+        ? "bg-gray-900/80 border-primary-700 focus:ring-primary-600 text-primary-200"
+        : "bg-gray-50/80 border-primary-500 focus:ring-primary-600 text-primary-800"
+        } ${className}`}
       {...props}
     />
   )
@@ -68,9 +73,8 @@ const ThinkingIndicator: React.FC<{ darkMode: boolean }> = ({ darkMode }) => (
     className="flex justify-start"
   >
     <div
-      className={`p-3 rounded-2xl max-w-[70%] ${
-        darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
-      }`}
+      className={`p-3 rounded-2xl max-w-[70%] ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
+        }`}
     >
       <motion.div
         animate={{ opacity: [0.5, 1, 0.5] }}
@@ -131,6 +135,122 @@ const translations = {
     errorLimit: "Limite de caractères dépassée",
     errorCooldown: "Veuillez patienter avant d'envoyer un autre message",
   },
+}
+
+const CustomLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => {
+  const navigate = useNavigate()
+  const isInternalLink = href.startsWith('/')
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isInternalLink) {
+      e.preventDefault()
+      navigate(href)
+    }
+  }
+
+  return (
+    <a
+      href={href}
+      onClick={handleClick}
+      className="underline text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 decoration-dotted underline-offset-4"
+      target={isInternalLink ? undefined : "_blank"}
+      rel={isInternalLink ? undefined : "noopener noreferrer"}
+    >
+      {children}
+    </a>
+  )
+}
+
+const MarkdownMessage: React.FC<{ content: string; darkMode: boolean }> = ({ content, darkMode }) => (
+  <ReactMarkdown
+    remarkPlugins={[remarkGfm]}
+    className="max-w-none prose prose-sm dark:prose-invert"
+    components={{
+      code({ node, className, children, ...props }) {
+        const match = /language-(\w+)/.exec(className || '')
+        return match ? (
+          <SyntaxHighlighter
+            // @ts-ignore 
+            style={darkMode ? vscDarkPlus : vs}
+            language={match[1]}
+            PreTag="div"
+            {...props}
+          >
+            {String(children).replace(/\n$/, '')}
+          </SyntaxHighlighter>
+        ) : (
+          <code className={className} {...props}>
+            {children}
+          </code>
+        )
+      },
+      // @ts-ignore 
+      a: ({ node, ...props }) => <CustomLink href={props.href || ''} {...props} />,
+      h1: ({ children }) => <h1 className="mb-2 text-xl font-bold">{children}</h1>,
+      h2: ({ children }) => <h2 className="mb-2 text-lg font-bold">{children}</h2>,
+      ul: ({ children }) => <ul className="mb-2 list-disc list-inside">{children}</ul>,
+      ol: ({ children }) => <ol className="mb-2 list-decimal list-inside">{children}</ol>,
+      blockquote: ({ children }) => (
+        <blockquote className="pl-4 my-2 italic border-l-4 border-primary-500">{children}</blockquote>
+      ),
+    }}
+  >
+    {content}
+  </ReactMarkdown>
+)
+
+const MessageComponent: React.FC<{ message: Message; darkMode: boolean }> = ({ message, darkMode }) => (
+  <motion.div
+    initial={message.animate ? { opacity: 0, y: 10 } : false}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3 }}
+    className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+  >
+    <div
+      className={`max-w-[90%] sm:max-w-[80%] p-2 sm:p-3 md:p-4 rounded-2xl backdrop-blur-sm shadow-lg 
+      ${message.sender === "user"
+          ? darkMode
+            ? "bg-gradient-to-br from-primary-700 to-primary-900 text-white"
+            : "bg-gradient-to-br from-primary-600 to-primary-800 text-white"
+          : darkMode
+            ? "bg-gray-800/80 text-primary-300 border border-primary-900/20"
+            : "bg-gray-100/80 text-primary-700 border border-primary-200/20"
+        }`}
+    >
+      {message.sender === "ai" ? (
+        <MarkdownMessage content={message.text} darkMode={darkMode} />
+      ) : (
+        <div className="whitespace-pre-wrap">{message.text}</div>
+      )}
+    </div>
+  </motion.div>
+)
+
+const QuickActions: React.FC<{ darkMode: boolean; onSelect: (action: string) => void }> = ({ darkMode, onSelect }) => {
+  const actions = [
+    { icon: "🔍", label: "Disease Detection", action: "I want to detect crop diseases" },
+    { icon: "🌱", label: "Crop Advisory", action: "I need crop care advice" },
+    { icon: "📊", label: "Market Insights", action: "Show me current market prices" },
+    { icon: "🌤️", label: "Weather Forecast", action: "What's the weather forecast?" },
+  ]
+
+  return (
+    <div className="grid grid-cols-2 gap-2 mb-4">
+      {actions.map(({ icon, label, action }) => (
+        <button
+          key={label}
+          onClick={() => onSelect(action)}
+          className={`flex items-center p-3 rounded-lg transition-all duration-300 ${darkMode
+            ? "border bg-gray-800/50 hover:bg-gray-700/50 border-primary-800/30"
+            : "border bg-gray-100/50 hover:bg-gray-200/50 border-primary-200/30"
+            }`}
+        >
+          <span className="mr-2 text-xl">{icon}</span>
+          <span className="text-sm">{label}</span>
+        </button>
+      ))}
+    </div>
+  )
 }
 
 const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
@@ -271,6 +391,13 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
     },
   }
 
+  const handleQuickAction = (action: string) => {
+    setInput(action)
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
   return (
     <div className="fixed right-2 bottom-2 z-50 sm:right-4 sm:bottom-4 md:right-8 md:bottom-8">
       <AnimatePresence>
@@ -281,9 +408,8 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
             exit="closed"
             variants={containerVariants}
             custom={isExpanded}
-            className={`flex flex-col overflow-hidden shadow-2xl rounded-3xl backdrop-blur-sm ${
-              darkMode ? "bg-gray-900/95" : "bg-white/95"
-            }`}
+            className={`flex flex-col overflow-hidden shadow-2xl rounded-3xl backdrop-blur-sm ${darkMode ? "bg-gray-900/95" : "bg-white/95"
+              }`}
             style={{
               boxShadow: darkMode
                 ? "0 10px 25px -5px rgba(16,185,129,0.3), 0 8px 10px -6px rgba(16,185,129,0.2)"
@@ -299,17 +425,15 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                 bottom: 0,
               }}
               dragElastic={0.1}
-              className={`flex justify-between items-center p-4 text-white rounded-t-3xl cursor-move sm:p-6 ${
-                darkMode
-                  ? "bg-gradient-to-r from-primary-700 to-primary-900"
-                  : "bg-gradient-to-r from-primary-600 to-primary-800"
-              }`}
+              className={`flex justify-between items-center p-4 text-white rounded-t-3xl cursor-move sm:p-6 ${darkMode
+                ? "bg-gradient-to-r from-primary-700 to-primary-900"
+                : "bg-gradient-to-r from-primary-600 to-primary-800"
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <div
-                  className={`flex justify-center items-center w-10 h-10 text-base font-bold rounded-full shadow-inner sm:w-12 sm:h-12 sm:text-lg backdrop-blur-sm ${
-                    darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
-                  }`}
+                  className={`flex justify-center items-center w-10 h-10 text-base font-bold rounded-full shadow-inner sm:w-12 sm:h-12 sm:text-lg backdrop-blur-sm ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
+                    }`}
                 >
                   AI
                 </div>
@@ -353,58 +477,46 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
             <div className="overflow-hidden relative flex-1">
               <div className="absolute inset-0 bg-noise opacity-85" />
               <div
-                className={`absolute inset-0 ${
-                  darkMode
-                    ? "bg-gradient-to-br via-gray-900 from-primary-900/90 to-primary-950/90"
-                    : "bg-gradient-to-br via-white from-primary-100/90 to-primary-200/90"
-                }`}
+                className={`absolute inset-0 ${darkMode
+                  ? "bg-gradient-to-br via-gray-900 from-primary-900/90 to-primary-950/90"
+                  : "bg-gradient-to-br via-white from-primary-100/90 to-primary-200/90"
+                  }`}
               />
               <div className="overflow-y-auto relative p-4 space-y-4 h-full sm:p-6">
                 {error && (
                   <div
-                    className={`p-2 text-sm rounded-md ${
-                      darkMode ? "text-red-300 bg-red-900/20" : "text-red-600 bg-red-100/20"
-                    }`}
+                    className={`p-2 text-sm rounded-md ${darkMode ? "text-red-300 bg-red-900/20" : "text-red-600 bg-red-100/20"
+                      }`}
                   >
                     {error}
                   </div>
                 )}
-                <AnimatePresence>
-                  {messages.map((message, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-[90%] sm:max-w-[80%] p-2 sm:p-3 md:p-4 rounded-2xl backdrop-blur-sm shadow-lg ${
-                          message.sender === "user"
-                            ? darkMode
-                              ? "bg-gradient-to-br from-primary-700 to-primary-900 text-white"
-                              : "bg-gradient-to-br from-primary-600 to-primary-800 text-white"
-                            : darkMode
-                              ? "bg-gray-800/80 text-primary-300 border border-primary-900/20"
-                              : "bg-gray-100/80 text-primary-700 border border-primary-200/20"
-                        }`}
-                      >
-                        {message.text}
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                {messages.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <QuickActions darkMode={darkMode} onSelect={handleQuickAction} />
+                  </motion.div>
+                )}
+                {messages.map((message, index) => (
+                  <MessageComponent
+                    key={index}
+                    message={message}
+                    darkMode={darkMode}
+                  />
+                ))}
                 {isLoading && <ThinkingIndicator darkMode={darkMode} />}
                 <div ref={messagesEndRef} />
               </div>
             </div>
 
             <div
-              className={`relative p-4 sm:p-6 ${
-                darkMode
-                  ? "bg-gradient-to-t from-gray-900 via-gray-900 to-transparent"
-                  : "bg-gradient-to-t from-white via-white to-transparent"
-              }`}
+              className={`relative p-4 sm:p-6 ${darkMode
+                ? "bg-gradient-to-t from-gray-900 via-gray-900 to-transparent"
+                : "bg-gradient-to-t from-white via-white to-transparent"
+                }`}
             >
               {showCharacterCount && (
                 <div className={`mb-2 text-xs ${getInputColor()}`}>
@@ -427,11 +539,10 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                 <Button
                   onClick={handleSendMessage}
                   disabled={isLoading || cooldown > 0 || input.length > characterLimit}
-                  className={`p-2 sm:p-3 shadow-lg transition-all duration-300 ${
-                    darkMode
-                      ? "bg-gradient-to-r from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-700"
-                      : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600"
-                  }`}
+                  className={`p-2 sm:p-3 shadow-lg transition-all duration-300 ${darkMode
+                    ? "bg-gradient-to-r from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-700"
+                    : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600"
+                    }`}
                   darkMode={darkMode}
                 >
                   <Send className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -447,11 +558,10 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   <Button
                     key={index}
                     onClick={() => setInput(question)}
-                    className={`px-3 py-1 text-xs rounded-full border transition-all duration-300 backdrop-blur-sm ${
-                      darkMode
-                        ? "border-primary-700/20 hover:bg-gray-800/50 hover:border-primary-700"
-                        : "border-primary-600/20 hover:bg-gray-100/50 hover:border-primary-600"
-                    }`}
+                    className={`px-3 py-1 text-xs rounded-full border transition-all duration-300 backdrop-blur-sm ${darkMode
+                      ? "border-primary-700/20 hover:bg-gray-800/50 hover:border-primary-700"
+                      : "border-primary-600/20 hover:bg-gray-100/50 hover:border-primary-600"
+                      }`}
                     darkMode={darkMode}
                     variant="secondary"
                     disabled={cooldown > 0}
@@ -470,11 +580,10 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen(true)}
-          className={`p-4 text-white rounded-full shadow-lg transition-colors duration-500 ease-in-out ${
-            darkMode
-              ? "bg-gradient-to-r from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-700"
-              : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600"
-          }`}
+          className={`p-4 text-white rounded-full shadow-lg transition-colors duration-500 ease-in-out ${darkMode
+            ? "bg-gradient-to-r from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-700"
+            : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600"
+            }`}
         >
           <FaRocketchat className="w-6 h-6" />
         </motion.button>
