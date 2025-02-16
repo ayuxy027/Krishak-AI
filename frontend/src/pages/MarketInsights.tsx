@@ -87,7 +87,16 @@ export const MarketInsights: React.FC<MarketInsightsProps> = () => {
           <div className="relative z-10 p-2 rounded-xl backdrop-blur-sm bg-white/20">
             <Select
               cacheOptions
-              loadOptions={loadOptions}
+              loadOptions={() => {
+                const sortedCities = [...marketData.cities].sort((a, b) =>
+                  a.city.localeCompare(b.city)
+                );
+                const options = sortedCities.map((city, index) => ({
+                  value: index,
+                  label: city.city
+                }));
+                return Promise.resolve(options);
+              }}
               onChange={(option: any) => {
                 if (option) {
                   fetchCityData(marketData.cities[option.value]);
@@ -113,6 +122,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = () => {
             />
           </div>
         </div>
+
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
