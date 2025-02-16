@@ -85,43 +85,51 @@ export const MarketInsights: React.FC<MarketInsightsProps> = () => {
         {/* City Selector */}
         <div className="px-4 mx-auto mb-8 max-w-xl sm:px-0">
           <div className="relative z-10 p-2 rounded-xl backdrop-blur-sm bg-white/20">
-            <Select
-              cacheOptions
-              loadOptions={() => {
-                const sortedCities = [...marketData.cities].sort((a, b) =>
-                  a.city.localeCompare(b.city)
-                );
-                const options = sortedCities.map((city, index) => ({
-                  value: index,
-                  label: city.city
-                }));
-                return Promise.resolve(options);
-              }}
-              onChange={(option: any) => {
-                if (option) {
-                  fetchCityData(marketData.cities[option.value]);
-                }
-              }}
-              className="text-base"
-              placeholder="Select a city..."
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  background: 'transparent',
-                  borderColor: '#0000',
-                  borderRadius: '0.75rem',
-                  padding: '0.25rem'
-                }),
-                menu: (base) => ({
-                  ...base,
-                  zIndex: 20
-                })
-              }}
-              defaultOptions
-              isDisabled={isLoading}
-            />
+          <Select
+  cacheOptions
+  loadOptions={(inputValue) => {
+    // Filter cities dynamically based on search input
+    const filteredCities = marketData.cities
+      .filter((city) =>
+        city.city.toLowerCase().includes(inputValue.toLowerCase())
+      )
+      .sort((a, b) => a.city.localeCompare(b.city))
+      .map((city) => ({
+        value: city.city, // Use city name as value
+        label: city.city
+      }));
+
+    return Promise.resolve(filteredCities);
+  }}
+  onChange={(option: any) => {
+    if (option) {
+      const selectedCity = marketData.cities.find(
+        (city) => city.city === option.value
+      );
+      if (selectedCity) fetchCityData(selectedCity);
+    }
+  }}
+  className="text-base"
+  placeholder="Select a city..."
+  styles={{
+    control: (base) => ({
+      ...base,
+      background: 'transparent',
+      borderColor: '#0000',
+      borderRadius: '0.75rem',
+      padding: '0.25rem'
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 20
+    })
+  }}
+  defaultOptions
+  isDisabled={isLoading}
+/>
           </div>
         </div>
+
 
 
         {/* Stats Grid */}
