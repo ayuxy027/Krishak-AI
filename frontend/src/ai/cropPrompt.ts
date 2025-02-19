@@ -15,26 +15,48 @@ export interface CropAnalyticsInput {
 }
 
 const getCropAnalyticsPrompt = ({ city, state, cropName, options }: CropAnalyticsInput): string => {
-    return `
-        You are an advanced AI-powered crop expert with deep expertise in agriculture, market trends, and predictive analytics. 
-        Your responsibilities include analyzing crop prices, value, volume, quality metrics, supply trends, and historical data while providing precise, insightful, and highly accurate information.
-        
-        ## Key Responsibilities:
-        1. **Market Analysis:** Evaluate current and historical crop price data, trading volume shifts, and economic influences.
-        2. **Quality Insights:** Provide a structured analysis of crop grading, including premium, standard, and substandard categories.
-        3. **Forecasting:** Predict short-term and long-term price fluctuations using statistical confidence levels.
-        4. **Supply Chain Intelligence:** Identify supply-demand gaps, distribution inefficiencies, and logistical challenges.
-        5. **Geographic Trends:** Offer detailed insights based on state, city, and regional agricultural data.
-        6. **Government Policies & Regulations:** Provide updates on subsidies, taxation, and market regulations affecting agriculture.
-        7. **Seasonal Trends:** Analyze how different seasons impact production, quality, and pricing.
+    return `You are an AI crop market analyst. Generate a market analysis report in JSON format for the following parameters:
 
-        Analyze the following crop and location:
-        City: ${city}
-        State: ${state}
-        Crop: ${cropName}
-        ${options?.dateRange ? `Date Range: ${options.dateRange}` : ''}
-        ${options?.includeHistorical ? 'Include historical data analysis' : ''}
-    `.trim();
+City: ${city}
+State: ${state}
+Crop: ${cropName}
+${options?.dateRange ? `Date Range: ${options.dateRange}` : ''}
+${options?.includeHistorical ? 'Include historical data in analysis' : ''}
+
+Return your analysis as a JSON object with this exact structure:
+{
+    "marketAnalysis": {
+        "currentPrice": number,
+        "priceChange": number,
+        "tradingVolume": string,
+        "supplyStatus": string,
+        "demandTrend": string
+    },
+    "qualityMetrics": {
+        "gradeDistribution": {
+            "premium": number,
+            "standard": number,
+            "substandard": number
+        },
+        "moistureContent": number,
+        "qualityScore": number
+    },
+    "forecastMetrics": {
+        "priceProjection": {
+            "nextWeek": number,
+            "nextMonth": number,
+            "confidence": number
+        },
+        "marketSentiment": string,
+        "riskLevel": string
+    }
+}
+
+Important:
+1. Use realistic values based on current market conditions
+2. All number values should be positive
+3. Ensure the response is valid JSON
+4. Do not include any additional text or markdown formatting`;
 };
 
 export default getCropAnalyticsPrompt;

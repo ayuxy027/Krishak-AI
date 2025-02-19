@@ -1,0 +1,41 @@
+{
+    "cities": [
+      "Ahmednagar",
+      "Akola",
+      "Amravati",
+      "Aurangabad",
+      "Beed",
+      "Bhandara",
+      "Buldhana",
+      "Chandrapur",
+      "Dhule",
+      "Gadchiroli",
+      "Gondia",
+      "Hingoli",
+      "Jalgaon",
+      "Jalna",
+      "Kolhapur",
+      "Latur",
+      "Mumbai",
+      "Nagpur",
+      "Nanded",
+      "Nandurbar",
+      "Nashik",
+      "Osmanabad",
+      "Parbhani",
+      "Pune",
+      "Raigad",
+      "Ratnagiri",
+      "Sangli",
+      "Satara",
+      "Solapur",
+      "Thane",
+      "Wardha",
+      "Washim",
+      "Yavatmal"
+    ],
+    "crops": [
+      "Rice", "Wheat", "Cotton", "Sugarcane",
+      "Pulses", "Soybeans", "Maize", "Groundnut"
+    ]
+  }
