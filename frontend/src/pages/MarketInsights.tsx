@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { TrendingUp, Users, Bell, DollarSign, BarChart2, Building } from 'lucide-react';
 import Select from 'react-select/async';
 import { toast, ToastContainer } from 'react-toastify';
@@ -12,22 +12,6 @@ interface MarketInsightsProps {
 export const MarketInsights: React.FC<MarketInsightsProps> = () => {
   const [selectedCity, setSelectedCity] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const loadOptions = useCallback((inputValue: string) => {
-    return new Promise<any[]>((resolve) => {
-      setTimeout(() => {
-        const filteredCities = marketData.cities
-          .filter((city) =>
-            city.city.toLowerCase().includes(inputValue.toLowerCase())
-          )
-          .map((city, index) => ({
-            value: index,
-            label: city.city,
-          }));
-        resolve(filteredCities);
-      }, 300);
-    });
-  }, []);
 
   const fetchCityData = (cityData: any) => {
     setIsLoading(true);
