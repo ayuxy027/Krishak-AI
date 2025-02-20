@@ -12,7 +12,7 @@ const CropAdvisory: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<CropAnalyticsResponse | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [showSystemInfo, setShowSystemInfo] = useState(false);
+  const [showSystemInfo, setShowSystemInfo] = useState(true);
   const selectedState = 'Maharashtra';
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const CropAdvisory: React.FC = () => {
         dateRange: 'current',
         options: { includeHistorical: true, logErrors: true }
       });
-      
+
       setTimeout(() => {
         setAnalyticsData(response);
         toast.success('Analysis completed successfully');
@@ -60,7 +60,7 @@ const CropAdvisory: React.FC = () => {
 
   const SystemStatus = () => (
     <div className="absolute top-4 right-4 z-10">
-      <div 
+      <div
         className="relative"
         onMouseEnter={() => setShowSystemInfo(true)}
         onMouseLeave={() => setShowSystemInfo(false)}
@@ -68,7 +68,7 @@ const CropAdvisory: React.FC = () => {
         <button className="p-2 rounded-full shadow-lg transition-all bg-white/90 hover:bg-white">
           <Info className="w-5 h-5 text-emerald-600" />
         </button>
-        
+
         {showSystemInfo && (
           <div className="absolute right-0 p-4 mt-2 w-72 bg-white rounded-xl border border-emerald-100 shadow-xl">
             <h4 className="mb-3 text-lg font-semibold text-gray-900">System Status</h4>
@@ -83,7 +83,7 @@ const CropAdvisory: React.FC = () => {
                   <span className="text-sm text-green-600">Active</span>
                 </div>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
                   <Database className="w-4 h-4 text-emerald-600" />
@@ -108,8 +108,9 @@ const CropAdvisory: React.FC = () => {
 
               <div className="pt-3 mt-4 border-t border-gray-100">
                 <p className="text-xs leading-relaxed text-gray-500">
-                  Real-time data sourced from Agricultural Ministry of India, 
-                  National Commodity Exchanges, and Regional Mandi APIs. 
+                  Real-time data sourced from Agricultural Ministry of India,
+                  National Commodity Exchanges, and Regional APIs.
+                  <br />
                   Analysis powered by Gemini 2.0 Advanced.
                 </p>
               </div>
@@ -217,21 +218,16 @@ const CropAdvisory: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-3 rounded-lg border bg-white/50 border-emerald-100/50">
                     <span className="text-gray-600">Current Price</span>
-                    <div className="flex gap-2 items-center">
-                      <span className="font-semibold text-emerald-600">
-                        ₹{analyticsData.marketAnalysis.summary.currentPrice}/quintal
-                      </span>
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    </div>
+                    <span className="font-semibold text-emerald-600">
+                      ₹{analyticsData.marketAnalysis.summary.currentPrice.toLocaleString()}/quintal
+                    </span>
                   </div>
                   <div className="flex justify-between items-center p-3 rounded-lg border bg-white/50 border-emerald-100/50">
-                    <span className="text-gray-600">Trading Volume</span>
-                    <div className="flex gap-2 items-center">
-                      <span className="font-semibold text-emerald-600">
-                        {analyticsData.marketAnalysis.summary.tradingVolume} MT
-                      </span>
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    </div>
+                    <span className="text-gray-600">Price Change</span>
+                    <span className={`font-semibold ${analyticsData.marketAnalysis.summary.priceChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {analyticsData.marketAnalysis.summary.priceChange >= 0 ? '+' : ''}
+                      {analyticsData.marketAnalysis.summary.priceChange.toFixed(2)}%
+                    </span>
                   </div>
                 </div>
               </div>
@@ -267,18 +263,18 @@ const CropAdvisory: React.FC = () => {
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-gray-600">Next Week</span>
                       <span className="font-semibold text-orange-600">
-                        ₹{analyticsData.forecastMetrics.priceProjection.nextWeek}/quintal
+                        ₹{analyticsData.forecastMetrics.priceProjection.nextWeek.toLocaleString()}/quintal
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Next Month</span>
                       <span className="font-semibold text-orange-600">
-                        ₹{analyticsData.forecastMetrics.priceProjection.nextMonth}/quintal
+                        ₹{analyticsData.forecastMetrics.priceProjection.nextMonth.toLocaleString()}/quintal
                       </span>
                     </div>
                     <div className="mt-3 text-sm text-gray-500">
                       AI Confidence: {analyticsData.forecastMetrics.priceProjection.confidence}%
-                      </div>
+                    </div>
                     <div className="pt-3 mt-4 border-t border-orange-100/50">
                       <div className="flex gap-2 items-center text-xs text-gray-500">
                         <Cpu className="w-4 h-4 text-orange-400" />
@@ -303,7 +299,7 @@ const CropAdvisory: React.FC = () => {
                     <span className="text-sm font-medium text-blue-600">Live Updates</span>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div className="p-4 rounded-lg border bg-white/50 border-blue-100/50">
                     <h4 className="mb-2 text-sm font-medium text-gray-600">Supply Trend</h4>
@@ -312,7 +308,7 @@ const CropAdvisory: React.FC = () => {
                       <TrendingUp className="w-5 h-5 text-blue-400" />
                     </div>
                   </div>
-                  
+
                   <div className="p-4 rounded-lg border bg-white/50 border-blue-100/50">
                     <h4 className="mb-2 text-sm font-medium text-gray-600">Market Volatility</h4>
                     <div className="flex justify-between items-center">
@@ -320,7 +316,7 @@ const CropAdvisory: React.FC = () => {
                       <Activity className="w-5 h-5 text-blue-400" />
                     </div>
                   </div>
-                  
+
                   <div className="p-4 rounded-lg border bg-white/50 border-blue-100/50">
                     <h4 className="mb-2 text-sm font-medium text-gray-600">Trading Signal</h4>
                     <div className="flex justify-between items-center">
@@ -355,7 +351,7 @@ const CropAdvisory: React.FC = () => {
           </div>
         </div>
       </div>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}

@@ -26,11 +26,14 @@ ${options?.includeHistorical ? 'Include historical data in analysis' : ''}
 Return your analysis as a JSON object with this exact structure:
 {
     "marketAnalysis": {
-        "currentPrice": number,
-        "priceChange": number,
-        "tradingVolume": string,
-        "supplyStatus": string,
-        "demandTrend": string
+        "summary": {
+            "currentPrice": number,
+            "priceChange": number,
+            "tradingVolume": number,
+            "marketSentiment": string
+        },
+        "visualizations": [],
+        "insights": []
     },
     "qualityMetrics": {
         "gradeDistribution": {
@@ -38,8 +41,7 @@ Return your analysis as a JSON object with this exact structure:
             "standard": number,
             "substandard": number
         },
-        "moistureContent": number,
-        "qualityScore": number
+        "qualityParameters": []
     },
     "forecastMetrics": {
         "priceProjection": {
@@ -47,16 +49,22 @@ Return your analysis as a JSON object with this exact structure:
             "nextMonth": number,
             "confidence": number
         },
-        "marketSentiment": string,
-        "riskLevel": string
+        "supplyOutlook": {
+            "trend": string,
+            "factors": []
+        }
     }
 }
 
 Important:
 1. Use realistic values based on current market conditions
 2. All number values should be positive
-3. Ensure the response is valid JSON
-4. Do not include any additional text or markdown formatting`;
+3. Ensure currentPrice is between 1000 and 10000
+4. priceChange should be between -10 and +10
+5. Ensure the response is valid JSON
+6. Do not include any additional text or markdown formatting
+7. Give the AI Confidence always between 80-100% range only
+`;
 };
 
 export default getCropAnalyticsPrompt;
