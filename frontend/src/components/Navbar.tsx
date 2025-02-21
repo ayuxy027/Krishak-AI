@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Brain, BarChart3,Sprout } from 'lucide-react';
+import { Menu, X, BarChart3,Sprout,Flower2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Language } from '../types';
 import { cn } from '../utils/cn';
@@ -18,7 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({ t }) => {
 
   const navItems = [
     { path: '/disease-detection', icon: LuBug, label: t('navbar.diseaseDetection') },
-    { path: '/crop-advisory', icon: Brain, label: t('navbar.cropAdvisory') },
+    { path: '/crop-advisory', icon: Flower2, label: t('navbar.cropAdvisory') },
     { path: '/market-insights', icon: BarChart3, label: t('navbar.marketInsights') },
     { path: '/prediction', icon: LuDroplets, label: t('navbar.chatbot') },
   ];
