@@ -306,7 +306,7 @@ export const Home: React.FC = () => {
           <motion.h1
             className="mb-6 text-4xl font-bold leading-tight text-transparent bg-clip-text bg-gradient-to-r md:text-5xl lg:text-6xl from-primary-600 to-primary-500"
           >
-            Smart Farming Made Simple
+            Smart Farming Made Simple Dibbo
           </motion.h1>
 
           <motion.p
