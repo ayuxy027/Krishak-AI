@@ -3,7 +3,7 @@
     {
       "city": "Mumbai",
       "state": "Maharashtra",
-      "waterLevel": 72,
+      "waterLevel": 72.3,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -28,7 +28,7 @@
     {
       "city": "Pune",
       "state": "Maharashtra",
-      "waterLevel": 45,
+      "waterLevel": 45.6,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -53,7 +53,7 @@
     {
       "city": "Nashik",
       "state": "Maharashtra",
-      "waterLevel": 20,
+      "waterLevel": 20.1,
       "idealWaterLevel": "no",
       "waterQuality": "Poor",
       "lastUpdated": "2024-03-15",
@@ -74,7 +74,7 @@
     {
       "city": "Nagpur",
       "state": "Maharashtra",
-      "waterLevel": 85,
+      "waterLevel": 85.2,
       "idealWaterLevel": "yes",
       "waterQuality": "Excellent",
       "lastUpdated": "2024-03-15",
@@ -99,7 +99,7 @@
     {
       "city": "Aurangabad",
       "state": "Maharashtra",
-      "waterLevel": 100,
+      "waterLevel": 100.0,
       "idealWaterLevel": "yes",
       "waterQuality": "Excellent",
       "lastUpdated": "2024-03-15",
@@ -124,7 +124,7 @@
     {
       "city": "Solapur",
       "state": "Maharashtra",
-      "waterLevel": 50,
+      "waterLevel": 50.4,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -149,7 +149,7 @@
     {
       "city": "Kolhapur",
       "state": "Maharashtra",
-      "waterLevel": 70,
+      "waterLevel": 70.7,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -174,7 +174,7 @@
     {
       "city": "Amravati",
       "state": "Maharashtra",
-      "waterLevel": 40,
+      "waterLevel": 40.2,
       "idealWaterLevel": "low",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -199,7 +199,7 @@
     {
       "city": "Thane",
       "state": "Maharashtra",
-      "waterLevel": 55,
+      "waterLevel": 55.3,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -224,7 +224,7 @@
     {
       "city": "Satara",
       "state": "Maharashtra",
-      "waterLevel": 60,
+      "waterLevel": 60.5,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -249,7 +249,7 @@
     {
       "city": "Latur",
       "state": "Maharashtra",
-      "waterLevel": 25,
+      "waterLevel": 25.1,
       "idealWaterLevel": "low",
       "waterQuality": "Poor",
       "lastUpdated": "2024-03-15",
@@ -270,7 +270,7 @@
     {
       "city": "Jalgaon",
       "state": "Maharashtra",
-      "waterLevel": 75,
+      "waterLevel": 75.8,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -295,7 +295,7 @@
     {
       "city": "Sangli",
       "state": "Maharashtra",
-      "waterLevel": 68,
+      "waterLevel": 68.4,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -320,7 +320,7 @@
     {
       "city": "Akola",
       "state": "Maharashtra",
-      "waterLevel": 45,
+      "waterLevel": 45.7,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -345,7 +345,7 @@
     {
       "city": "Osmanabad",
       "state": "Maharashtra",
-      "waterLevel": 30,
+      "waterLevel": 30.2,
       "idealWaterLevel": "low",
       "waterQuality": "Poor",
       "lastUpdated": "2024-03-15",
@@ -366,7 +366,7 @@
     {
       "city": "Beed",
       "state": "Maharashtra",
-      "waterLevel": 35,
+      "waterLevel": 35.3,
       "idealWaterLevel": "low",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -391,7 +391,7 @@
     {
       "city": "Nanded",
       "state": "Maharashtra",
-      "waterLevel": 50,
+      "waterLevel": 50.5,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -416,7 +416,7 @@
     {
       "city": "Chandrapur",
       "state": "Maharashtra",
-      "waterLevel": 70,
+      "waterLevel": 70.1,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -441,7 +441,7 @@
     {
       "city": "Buldhana",
       "state": "Maharashtra",
-      "waterLevel": 40,
+      "waterLevel": 40.3,
       "idealWaterLevel": "low",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -466,7 +466,7 @@
     {
       "city": "Parbhani",
       "state": "Maharashtra",
-      "waterLevel": 65,
+      "waterLevel": 65.2,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -491,7 +491,7 @@
     {
       "city": "Dhule",
       "state": "Maharashtra",
-      "waterLevel": 50,
+      "waterLevel": 50.7,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -516,7 +516,7 @@
     {
       "city": "Ratnagiri",
       "state": "Maharashtra",
-      "waterLevel": 80,
+      "waterLevel": 80.9,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -541,7 +541,7 @@
     {
       "city": "Wardha",
       "state": "Maharashtra",
-      "waterLevel": 35,
+      "waterLevel": 35.6,
       "idealWaterLevel": "low",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -566,7 +566,7 @@
     {
       "city": "Baramati",
       "state": "Maharashtra",
-      "waterLevel": 60,
+      "waterLevel": 60.8,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -591,7 +591,7 @@
     {
       "city": "Bhandara",
       "state": "Maharashtra",
-      "waterLevel": 70,
+      "waterLevel": 70.4,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -616,7 +616,7 @@
     {
       "city": "Chiplun",
       "state": "Maharashtra",
-      "waterLevel": 85,
+      "waterLevel": 85.1,
       "idealWaterLevel": "yes",
       "waterQuality": "Excellent",
       "lastUpdated": "2024-03-15",
@@ -641,7 +641,7 @@
     {
       "city": "Dapoli",
       "state": "Maharashtra",
-      "waterLevel": 75,
+      "waterLevel": 75.3,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -666,7 +666,7 @@
     {
       "city": "Deolali",
       "state": "Maharashtra",
-      "waterLevel": 40,
+      "waterLevel": 40.5,
       "idealWaterLevel": "low",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -691,7 +691,7 @@
     {
       "city": "Faizpur",
       "state": "Maharashtra",
-      "waterLevel": 45,
+      "waterLevel": 45.9,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -716,7 +716,7 @@
     {
       "city": "Navi Mumbai",
       "state": "Maharashtra",
-      "waterLevel": 90,
+      "waterLevel": 90.2,
       "idealWaterLevel": "yes",
       "waterQuality": "Excellent",
       "lastUpdated": "2024-03-15",
@@ -741,7 +741,7 @@
     {
       "city": "Hingoli",
       "state": "Maharashtra",
-      "waterLevel": 55,
+      "waterLevel": 55.7,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -766,7 +766,7 @@
     {
       "city": "Junnar",
       "state": "Maharashtra",
-      "waterLevel": 50,
+      "waterLevel": 50.3,
       "idealWaterLevel": "mediocre",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -791,7 +791,7 @@
     {
       "city": "Karad",
       "state": "Maharashtra",
-      "waterLevel": 80,
+      "waterLevel": 80.6,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -816,7 +816,7 @@
     {
       "city": "Mahad",
       "state": "Maharashtra",
-      "waterLevel": 70,
+      "waterLevel": 70.2,
       "idealWaterLevel": "yes",
       "waterQuality": "Good",
       "lastUpdated": "2024-03-15",
@@ -841,7 +841,7 @@
     {
       "city": "Matheran",
       "state": "Maharashtra",
-      "waterLevel": 85,
+      "waterLevel": 85.4,
       "idealWaterLevel": "yes",
       "waterQuality": "Excellent",
       "lastUpdated": "2024-03-15",
@@ -866,7 +866,7 @@
     {
       "city": "Nandurbar",
       "state": "Maharashtra",
-      "waterLevel": 45,
+      "waterLevel": 45.1,
       "idealWaterLevel": "low",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
@@ -891,7 +891,7 @@
     {
       "city": "Pimpri Chinchwad",
       "state": "Maharashtra",
-      "waterLevel": 90,
+      "waterLevel": 90.3,
       "idealWaterLevel": "yes",
       "waterQuality": "Excellent",
       "lastUpdated": "2024-03-15",
@@ -916,7 +916,7 @@
     {
       "city": "Washim",
       "state": "Maharashtra",
-      "waterLevel": 35,
+      "waterLevel": 35.1,
       "idealWaterLevel": "low",
       "waterQuality": "Moderate",
       "lastUpdated": "2024-03-15",
