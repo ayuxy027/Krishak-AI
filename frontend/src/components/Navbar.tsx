@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Leaf, Brain, BarChart3, Rocket } from 'lucide-react';
+import { Menu, X, Brain, BarChart3,Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Language } from '../types';
 import { cn } from '../utils/cn';
+import { LuBug } from "react-icons/lu";
+import { LuDroplets } from "react-icons/lu";
 
 interface NavbarProps {
   language: Language;
@@ -15,10 +17,10 @@ export const Navbar: React.FC<NavbarProps> = ({ t }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { path: '/disease-detection', icon: Leaf, label: t('navbar.diseaseDetection') },
+    { path: '/disease-detection', icon: LuBug, label: t('navbar.diseaseDetection') },
     { path: '/crop-advisory', icon: Brain, label: t('navbar.cropAdvisory') },
     { path: '/market-insights', icon: BarChart3, label: t('navbar.marketInsights') },
-    { path: '/prediction', icon: Rocket, label: t('navbar.chatbot') },
+    { path: '/prediction', icon: LuDroplets, label: t('navbar.chatbot') },
   ];
 
   return (
@@ -31,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ t }) => {
               className="flex items-center space-x-3 group"
             >
               <div className="p-2 rounded-lg transition-colors bg-primary-50 group-hover:bg-primary-100">
-                <Leaf className="w-8 h-8 text-primary-600" />
+                <Sprout className="w-8 h-8 text-primary-600" />
               </div>
               <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-500">
                 Kisan AI
