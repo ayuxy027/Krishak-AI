@@ -6,16 +6,10 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import clsx from 'clsx';
+import { detectDisease, DiseaseDetectionResult } from '../ai/diseaseDetectionService';
 
 interface DiseaseDetectionProps {
   t: (key: string) => string;
-}
-
-interface AnalysisResult {
-  confidence: number;
-  disease: string;
-  severity: 'low' | 'medium' | 'high';
-  detectedAt: string;
 }
 
 const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
@@ -24,94 +18,129 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [isResultsVisible, setIsResultsVisible] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [_mounted, setMounted] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<DiseaseDetectionResult | null>(null);
   const [systemStatus, setSystemStatus] = useState({
     modelLoaded: false,
     apiConnected: false,
     processingReady: false
   });
 
-  // Simulate initial system loading
   useEffect(() => {
-    setMounted(true);
+    console.log('Initializing Disease Detection component');
     const loadSystem = async () => {
-      // Simulate model loading
-      toast.info('Initializing AI system...', { autoClose: 2000 });
-      setTimeout(() => {
-        setSystemStatus(prev => ({ ...prev, modelLoaded: true }));
-        toast.info('AI model loaded successfully', { autoClose: 1500 });
-      }, 2000);
-
-      // Simulate API connection
-      setTimeout(() => {
-        setSystemStatus(prev => ({ ...prev, apiConnected: true }));
-        toast.info('Connected to analysis server', { autoClose: 1500 });
-      }, 3500);
-
-      // Simulate processing ready
-      setTimeout(() => {
-        setSystemStatus(prev => ({ ...prev, processingReady: true }));
-        toast.success('System ready for analysis', { autoClose: 2000 });
-      }, 5000);
+      try {
+        // Simulate model loading
+        toast.info(t('diseaseDetection.initializing'), { autoClose: 2000 });
+        await simulateSystemLoad();
+        console.log('System initialization complete');
+      } catch (error) {
+        console.error('System initialization failed:', error);
+        toast.error(t('diseaseDetection.initError'), { autoClose: 3000 });
+      }
     };
 
     loadSystem();
-  }, []);
+  }, [t]);
 
-  const processFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result as string);
-      analyzeImage();
-    };
-    reader.readAsDataURL(file);
+  const simulateSystemLoad = async () => {
+    // Model Loading
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setSystemStatus(prev => ({ ...prev, modelLoaded: true }));
+    toast.info(t('diseaseDetection.modelLoaded'), { autoClose: 1500 });
+
+    // API Connection
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setSystemStatus(prev => ({ ...prev, apiConnected: true }));
+    toast.info(t('diseaseDetection.apiConnected'), { autoClose: 1500 });
+
+    // Processing Ready
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setSystemStatus(prev => ({ ...prev, processingReady: true }));
+    toast.success(t('diseaseDetection.ready'), { autoClose: 2000 });
   };
 
-  const analyzeImage = () => {
+  const processFile = async (file: File) => {
+    try {
+      console.log('Processing file:', { name: file.name, size: file.size });
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        setImage(reader.result as string);
+        analyzeImage(file);
+      };
+
+      reader.onerror = (error) => {
+        console.error('File reading failed:', error);
+        toast.error(t('diseaseDetection.fileError'));
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('File processing failed:', error);
+      toast.error(t('diseaseDetection.processError'));
+    }
+  };
+
+  const simulateProgress = () => {
+    let progress = 0;
+    return setInterval(() => {
+      progress += 5;
+      if (progress <= 90) {
+        setAnalysisProgress(progress);
+      }
+    }, 500);
+  };
+
+  const analyzeImage = async (file: File) => {
+    console.log('Starting image analysis');
     setIsAnalyzing(true);
     setIsResultsVisible(false);
     setAnalysisProgress(0);
 
-    const stages = [
-      { message: "Initializing image analysis...", progress: 15 },
-      { message: "Processing image features...", progress: 35 },
-      { message: "Applying AI model...", progress: 60 },
-      { message: "Detecting disease patterns...", progress: 75 },
-      { message: "Generating recommendations...", progress: 90 },
-      { message: "Finalizing analysis...", progress: 100 }
-    ];
+    const progressInterval = simulateProgress();
 
-    let currentStage = 0;
-    const stageInterval = setInterval(() => {
-      if (currentStage < stages.length) {
-        const stage = stages[currentStage];
-        toast.info(stage.message, { autoClose: 1500 });
-        setAnalysisProgress(stage.progress);
-        currentStage++;
-      } else {
-        clearInterval(stageInterval);
-        setTimeout(() => {
-          setIsAnalyzing(false);
-          setAnalysisResult({
-            confidence: 94.5,
-            disease: "Leaf Blight",
-            severity: "medium",
-            detectedAt: new Date().toISOString()
-          });
-          setIsResultsVisible(true);
-          toast.success("Analysis completed successfully!", { autoClose: 2000 });
-        }, 1000);
-      }
-    }, 1200);
+    try {
+      const result = await detectDisease(file);
+
+      clearInterval(progressInterval);
+      setAnalysisProgress(100);
+      setAnalysisResult(result);
+      setIsResultsVisible(true);
+
+      console.log('Analysis completed successfully', {
+        disease: result.disease,
+        confidence: result.confidence
+      });
+
+      toast.success(t('diseaseDetection.analysisComplete'), { autoClose: 2000 });
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      clearInterval(progressInterval);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('diseaseDetection.analysisError'),
+        { autoClose: 3000 }
+      );
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png']
     },
-    onDrop: (acceptedFiles) => {
-      if (acceptedFiles.length > 0) processFile(acceptedFiles[0]);
+    maxSize: 10485760, // 10MB
+    onDrop: (acceptedFiles, rejectedFiles) => {
+      if (rejectedFiles.length > 0) {
+        console.warn('Files rejected:', rejectedFiles);
+        toast.error(t('diseaseDetection.invalidFile'));
+        return;
+      }
+      if (acceptedFiles.length > 0) {
+        processFile(acceptedFiles[0]);
+      }
     },
     onDragEnter: () => setIsDragActive(true),
     onDragLeave: () => setIsDragActive(false)
@@ -267,6 +296,16 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
                 className="object-contain w-full max-h-48 rounded-lg"
               />
             )}
+
+            {/* Preventive Measures */}
+            <div className="mt-4">
+              <h4 className="mb-2 font-semibold">Preventive Measures:</h4>
+              <ul className="pl-5 space-y-1 list-disc">
+                {analysisResult.preventiveMeasures.map((measure, index) => (
+                  <li key={index}>{measure}</li>
+                ))}
+              </ul>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
