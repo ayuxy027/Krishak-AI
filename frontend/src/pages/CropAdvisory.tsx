@@ -3,7 +3,7 @@ import { getCropAnalytics } from '../ai/cropService';
 import type { CropAnalyticsResponse } from '../ai/cropService';
 import cityData from '../data/cityData.json';
 import { BarChart3, Scale, TrendingUp, AlertCircle, Info, Activity, Database, Cpu } from 'lucide-react';
-import { toast, ToastContainer } from 'react-toastify';
+import toast from 'react-hot-toast';
 import 'react-toastify/dist/ReactToastify.css';
 
 const CropAdvisory: React.FC = () => {
@@ -20,7 +20,6 @@ const CropAdvisory: React.FC = () => {
     // Simulate periodic data refresh
     const refreshInterval = setInterval(() => {
       if (analyticsData) {
-        toast.info('Refreshing market data...', { autoClose: 1000 });
         handleAnalytics();
       }
     }, 300000); // Refresh every 5 minutes
@@ -30,31 +29,72 @@ const CropAdvisory: React.FC = () => {
 
   const handleAnalytics = async () => {
     if (!selectedCity || !selectedCrop) {
-      toast.error('Please select both city and crop');
+      toast.error('Please select both city and crop', {
+        style: {
+          background: '#FF5757',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '8px',
+        },
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#FF5757',
+        },
+      });
       return;
     }
 
-    setLoading(true);
-    toast.info('Analyzing crop data...', { autoClose: 1500 });
+    const analyticsPromise = getCropAnalytics({
+      city: selectedCity,
+      state: selectedState,
+      cropName: selectedCrop,
+      dateRange: 'current',
+      options: { includeHistorical: true, logErrors: true }
+    });
+
+    toast.promise(
+      analyticsPromise,
+      {
+        loading: 'Analyzing crop data...',
+        success: 'Analysis completed successfully',
+        error: 'Failed to fetch crop analytics',
+      },
+      {
+        style: {
+          minWidth: '250px',
+          padding: '16px',
+          borderRadius: '8px',
+        },
+        success: {
+          style: {
+            background: '#4CAF50',
+            color: '#fff',
+          },
+          iconTheme: {
+            primary: '#fff',
+            secondary: '#4CAF50',
+          },
+        },
+        error: {
+          style: {
+            background: '#FF5757',
+            color: '#fff',
+          },
+          iconTheme: {
+            primary: '#fff',
+            secondary: '#FF5757',
+          },
+        },
+      }
+    );
 
     try {
-      const response = await getCropAnalytics({
-        city: selectedCity,
-        state: selectedState,
-        cropName: selectedCrop,
-        dateRange: 'current',
-        options: { includeHistorical: true, logErrors: true }
-      });
-
-      setTimeout(() => {
-        setAnalyticsData(response);
-        toast.success('Analysis completed successfully');
-      }, 1500);
+      const response = await analyticsPromise;
+      setAnalyticsData(response);
+      setLoading(false);
     } catch (err) {
-      toast.error('Failed to fetch crop analytics');
       console.error('Crop Analytics Error:', err);
-    } finally {
-      setTimeout(() => setLoading(false), 1500);
+      setLoading(false);
     }
   };
 
@@ -351,18 +391,6 @@ const CropAdvisory: React.FC = () => {
           </div>
         </div>
       </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </div>
   );
 };
