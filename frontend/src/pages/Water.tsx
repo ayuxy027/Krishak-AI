@@ -130,7 +130,7 @@ const WaterPrediction: React.FC = () => {
       <div className="w-1/2 h-4 bg-gray-200 rounded" />
     </div>
   );
-
+  
   const advisoryCards = selectedCity ? [
     {
       icon: Droplet,
@@ -149,7 +149,7 @@ const WaterPrediction: React.FC = () => {
     {
       icon: Calendar,
       title: 'Last Updated',
-      content: selectedCity.lastUpdated,
+      content: new Date().toLocaleDateString(),
       bgColor: 'from-purple-300/80 to-purple-100/80',
       iconColor: 'text-purple-600',
     },
