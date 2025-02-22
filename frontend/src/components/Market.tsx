@@ -49,34 +49,6 @@ interface Product {
 const products: Product[] = [
     {
         id: 1,
-        name: "Mahindra 575 DI Tractor",
-        image: "https://images.unsplash.com/photo-1530267981375-f08d50d19b57?auto=format&fit=crop&q=80",
-        price: 850000,
-        rentalPrice: 3500,
-        description: "Powerful tractor with power steering and dual clutch for Indian farming conditions",
-        category: "Heavy Equipment",
-        rating: 4.8,
-        available: true,
-        stock: 5,
-        featured: true,
-        specifications: ["Power Steering", "Dual Clutch", "40 HP Engine", "All-Terrain Capability"]
-    },
-    {
-        id: 2,
-        name: "Neem-Based Pesticide Pack",
-        image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?auto=format&fit=crop&q=80",
-        price: 1200,
-        rentalPrice: 0,
-        description: "Traditional neem-based pest control solution safe for organic farming",
-        category: "Chemicals",
-        rating: 4.5,
-        available: true,
-        stock: 150,
-        discount: 15,
-        specifications: ["Organic", "NPOP Certified", "Neem Extract", "Bio-degradable"]
-    },
-    {
-        id: 3,
         name: "Drip Irrigation Kit",
         image: "https://images.unsplash.com/photo-1591154669695-5f2a8d20c089?auto=format&fit=crop&q=80",
         price: 45000,
@@ -90,7 +62,7 @@ const products: Product[] = [
         specifications: ["Water-saving", "Easy Installation", "Weather-resistant", "Coverage: 1 Acre"]
     },
     {
-        id: 4,
+        id: 2,
         name: "Desi Seeds Collection",
         image: "https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?auto=format&fit=crop&q=80",
         price: 4999,
@@ -104,7 +76,7 @@ const products: Product[] = [
         specifications: ["Indigenous Varieties", "High-yield", "Drought-resistant", "Non-GMO"]
     },
     {
-        id: 5,
+        id: 3,
         name: "Kisan Sprayer Drone",
         image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80",
         price: 150000,
@@ -118,7 +90,7 @@ const products: Product[] = [
         specifications: ["HD Camera", "25min Flight Time", "GPS Enabled", "10L Tank"]
     },
     {
-        id: 6,
+        id: 4,
         name: "Digital Soil Testing Kit",
         image: "https://images.unsplash.com/photo-1611735341450-74d61e660ad2?auto=format&fit=crop&q=80",
         price: 8999,
@@ -131,7 +103,7 @@ const products: Product[] = [
         specifications: ["pH Testing", "NPK Analysis", "Mobile App", "Regional Database"]
     },
     {
-        id: 7,
+        id: 5,
         name: "Polyhouse Control System",
         image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80",
         price: 65000,
@@ -145,7 +117,7 @@ const products: Product[] = [
         specifications: ["Temperature Control", "Humidity Control", "Solar Powered", "Mobile Alerts"]
     },
     {
-        id: 8,
+        id: 6,
         name: "Vermicompost Bundle",
         image: "https://images.unsplash.com/photo-1515150144380-bca9f1650ed9?auto=format&fit=crop&q=80",
         price: 3499,
@@ -159,6 +131,7 @@ const products: Product[] = [
         specifications: ["100% Organic", "Rich in Nutrients", "Local Earthworms", "No Chemicals"]
     }
 ];
+
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
     const handlePayment = async () => {
@@ -235,25 +208,24 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 }
             }}
             whileHover={{ translateY: -4 }}
-            className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 transition-all duration-300 shadow-sm hover:shadow-xl
-                relative overflow-hidden group flex flex-col border border-gray-100"
+            className="flex overflow-hidden relative flex-col p-4 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 sm:p-6 md:p-8 hover:shadow-xl group"
         >
             <div className="flex relative z-10 flex-col h-full">
                 {/* Category & Rating */}
                 <div className="flex justify-between items-center mb-6">
                     <span className="text-sm font-medium text-gray-500">{product.category}</span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex gap-1 items-center">
                         <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                         <span className="text-sm font-medium text-gray-700">{product.rating}</span>
                     </div>
                 </div>
 
                 {/* Product Image */}
-                <div className="relative w-full h-48 mb-6 rounded-xl overflow-hidden">
+                <div className="overflow-hidden relative mb-6 w-full h-48 rounded-xl">
                     <img
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className="object-cover w-full h-full"
                     />
                 </div>
 
@@ -273,13 +245,13 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                             )}
                         </div>
                     )}
-                    <h3 className="text-xl font-semibold text-gray-900 leading-tight tracking-tight">
+                    <h3 className="text-xl font-semibold tracking-tight leading-tight text-gray-900">
                         {product.name}
                     </h3>
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-600 text-sm/relaxed mb-8">
+                <p className="mb-8 text-gray-600 text-sm/relaxed">
                     {product.description}
                 </p>
 
@@ -289,7 +261,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                         {product.specifications.map((spec, i) => (
                             <span
                                 key={i}
-                                className="px-3 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-600"
+                                className="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50 rounded-full"
                             >
                                 {spec}
                             </span>
@@ -299,14 +271,14 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 
                 {/* Updated Pricing Display */}
                 <div className="mt-auto">
-                    <div className="flex items-baseline justify-between border-t border-gray-100 pt-4">
+                    <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
                         <span className="text-sm font-medium text-gray-500">Price</span>
                         <div className="text-right">
                             <span className="text-2xl font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
                         </div>
                     </div>
                     {product.rentalPrice > 0 && (
-                        <div className="flex items-baseline justify-between border-t border-gray-100 pt-4">
+                        <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
                             <span className="text-sm font-medium text-gray-500">Daily Rental</span>
                             <span className="text-2xl font-bold text-primary-600">₹{product.rentalPrice}</span>
                         </div>
@@ -314,13 +286,12 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 </div>
 
                 {/* Responsive Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-2 mt-6">
+                <div className="flex flex-col gap-2 mt-6 sm:flex-row">
                     <motion.button
                         onClick={handlePayment}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full sm:w-1/2 py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl 
-                            font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                        className="flex gap-2 justify-center items-center px-4 py-3 w-full font-medium text-white rounded-xl transition-colors duration-200 sm:w-1/2 bg-primary-600 hover:bg-primary-700"
                     >
                         <ShoppingCart className="w-4 h-4" />
                         Buy Now
@@ -328,8 +299,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                     <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full sm:w-1/2 py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl 
-                            font-medium transition-colors duration-200"
+                        className="px-4 py-3 w-full font-medium text-white bg-gray-900 rounded-xl transition-colors duration-200 sm:w-1/2 hover:bg-gray-800"
                     >
                         View Details
                     </motion.button>
@@ -385,10 +355,10 @@ const Market = () => {
         });
 
     return (
-        <div className="py-12 sm:py-20 bg-gradient-to-b from-gray-50 to-white">
+        <div className="py-12 bg-gradient-to-b from-gray-50 to-white sm:py-20">
             {!isRazorpayReady && (
-                <div className="max-w-7xl mx-auto px-4 mb-8">
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                <div className="px-4 mx-auto mb-8 max-w-7xl">
+                    <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
                         <p className="text-yellow-800">
                             ⚠️ Payment system is not properly configured. Please check Razorpay setup.
                         </p>
@@ -396,12 +366,12 @@ const Market = () => {
                 </div>
             )}
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-16"
+                    className="mb-16 text-center"
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -412,10 +382,10 @@ const Market = () => {
                             Marketplace
                         </span>
                     </motion.div>
-                    <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h2 className="mb-4 text-4xl font-bold text-gray-900">
                         Smart Farming Marketplace
                     </h2>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p className="mx-auto max-w-2xl text-lg text-gray-600">
                         Purchase or rent premium farming equipment and supplies
                     </p>
                 </motion.div>
@@ -424,17 +394,16 @@ const Market = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-8 sm:mb-12 space-y-4 sm:space-y-6"
+                    className="mb-8 space-y-4 sm:mb-12 sm:space-y-6"
                 >
                     {/* Search */}
-                    <div className="max-w-2xl mx-auto w-full px-4">
+                    <div className="px-4 mx-auto w-full max-w-2xl">
                         <div className="relative">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                            <Search className="absolute left-4 top-1/2 w-5 h-5 text-gray-400 transform -translate-y-1/2" />
                             <input
                                 type="text"
                                 placeholder="Search products..."
-                                className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border border-gray-200 
-                                    focus:outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-lg"
+                                className="py-3 pr-4 pl-12 w-full text-base rounded-xl border border-gray-200 sm:py-4 sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-lg"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -442,10 +411,9 @@ const Market = () => {
                     </div>
 
                     {/* Responsive Category & Sort Filters */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <div className="flex flex-col gap-4 justify-center items-center sm:flex-row">
                         <select
-                            className="px-6 py-3 rounded-xl border border-gray-200 focus:outline-none 
-                                focus:ring-2 focus:ring-primary-500 text-gray-600"
+                            className="px-6 py-3 text-gray-600 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
                         >
@@ -455,8 +423,7 @@ const Market = () => {
                         </select>
 
                         <select
-                            className="px-6 py-3 rounded-xl border border-gray-200 focus:outline-none 
-                                focus:ring-2 focus:ring-primary-500 text-gray-600"
+                            className="px-6 py-3 text-gray-600 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
                             value={sort}
                             onChange={(e) => setSort(e.target.value as any)}
                         >
@@ -487,7 +454,7 @@ const Market = () => {
                 </motion.div>
 
                 {/* Responsive Products Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 lg:gap-8">
                     {filteredProducts.map((product, index) => (
                         <ProductCard key={product.id} product={product} index={index} />
                     ))}
