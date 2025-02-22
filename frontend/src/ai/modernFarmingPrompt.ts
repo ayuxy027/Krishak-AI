@@ -49,7 +49,7 @@ Return your analysis as a JSON object with this expanded structure:
 Guidelines:
 1. Ensure realistic cost estimates based on budget range
 2. ROI should be between 10-30%
-3. Include 4-6 detailed implementation phases
+3. Include 5 detailed and super relevent implementation phases
 4. All numeric metrics should be on a scale of 0-100
 5. Consider local agricultural conditions and seasonal variations
 6. Provide practical and actionable implementation steps
