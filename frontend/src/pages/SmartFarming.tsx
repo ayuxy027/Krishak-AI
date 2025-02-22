@@ -1,12 +1,10 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import type React from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Leaf,
-  Droplets,
-  Sun,
   Fish,
   TrendingUp,
   AlertCircle,
@@ -23,11 +21,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { toast, Toaster } from "react-hot-toast"
 
 const techniques = [
-  { id: "soil_farming", name: "Soil-Based Farming", icon: Droplets },
   { id: "organic_farming", name: "Organic Farming", icon: Leaf },
   { id: "rainwater_farming", name: "Rainwater Farming", icon: TreePine },
-  { id: "polyhouse_farming", name: "Polyhouse Farming", icon: Sun },
   { id: "integrated_farming", name: "Fish Farming", icon: Fish },
+  { id: "other_farming", name: "Other", icon: Settings2 },
 ] as const;
 
 const budgetOptions = [
@@ -43,6 +40,7 @@ const SmartFarming: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [analysisData, setAnalysisData] = useState<ModernFarmingResponse | null>(null)
   const [showSystemInfo, setShowSystemInfo] = useState<boolean>(false)
+  const [customFarmingType, setCustomFarmingType] = useState<string>("")
 
   useEffect(() => {
     // Refresh data every 5 minutes if analysis exists
@@ -68,9 +66,21 @@ const SmartFarming: React.FC = () => {
       return
     }
 
+    if (selectedTechnique === "other_farming" && !customFarmingType.trim()) {
+      toast.error("Please specify your farming technique", {
+        style: {
+          background: "#FF5757",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "8px",
+        },
+      })
+      return
+    }
+
     setLoading(true)
     const analysisPromise = getModernFarmingAnalysis({
-      technique: selectedTechnique,
+      technique: selectedTechnique === "other_farming" ? customFarmingType : selectedTechnique,
       farmSize,
       budget: selectedBudget,
     })
@@ -175,25 +185,50 @@ const SmartFarming: React.FC = () => {
         </div>
 
         {/* Selection Panel */}
-        <div className="px-4 mx-auto mb-8 max-w-xl md:mb-12 sm:px-0">
+        <div className="px-4 mx-auto mb-8 max-w-2xl md:mb-12 sm:px-0">
           <div className="p-6 rounded-xl border border-blue-50 shadow-sm backdrop-blur-sm bg-white/20">
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Technique Selection */}
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-4">
                 {techniques.map((tech) => (
                   <button
                     key={tech.id}
-                    onClick={() => setSelectedTechnique(tech.id)}
-                    className={`p-3 rounded-lg border transition-all ${selectedTechnique === tech.id
-                        ? "border-blue-500 bg-blue-50 text-blue-600"
-                        : "border-gray-200 hover:border-blue-200 hover:bg-blue-50/50"
+                    onClick={() => {
+                      setSelectedTechnique(tech.id)
+                      if (tech.id !== "other_farming") {
+                        setCustomFarmingType("")
+                      }
+                    }}
+                    className={`p-4 rounded-lg border transition-all flex flex-col items-center justify-center ${selectedTechnique === tech.id
+                      ? "border-blue-500 bg-blue-50 text-blue-600"
+                      : "border-gray-200 hover:border-blue-200 hover:bg-blue-50/50"
                       }`}
                   >
-                    <tech.icon className="mx-auto mb-2 w-6 h-6" />
-                    <span className="text-xs font-medium">{tech.name}</span>
+                    <tech.icon className="mb-3 w-8 h-8" />
+                    <span className="text-sm font-medium text-center">{tech.name}</span>
                   </button>
                 ))}
               </div>
+
+              {/* Custom Farming Type Input */}
+              <AnimatePresence>
+                {selectedTechnique === "other_farming" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Specify your farming technique"
+                      value={customFarmingType}
+                      onChange={(e) => setCustomFarmingType(e.target.value)}
+                      className="block px-4 py-2.5 w-full rounded-lg border border-gray-200 bg-white/50 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Farm Size Input */}
               <input
@@ -242,7 +277,7 @@ const SmartFarming: React.FC = () => {
         {/* Analysis Display */}
         <AnimatePresence>
           {loading ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 md:grid-cols-2">
               {Array(3)
                 .fill(0)
                 .map((_, index) => (
@@ -261,7 +296,7 @@ const SmartFarming: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="grid grid-cols-1 gap-6 md:grid-cols-3"
+              className="grid grid-cols-1 gap-6 lg:grid-cols-3 md:grid-cols-2"
             >
               {/* Overview Card */}
               <div className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl shadow-lg">
@@ -276,7 +311,21 @@ const SmartFarming: React.FC = () => {
                     <p className="text-sm text-gray-600">Implementation Overview</p>
                   </div>
                 </div>
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-white/50">
+                      <p className="text-sm text-gray-600">Success Rate</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {analysisData.techniqueAnalysis.overview.successRate}%
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-white/50">
+                      <p className="text-sm text-gray-600">Time to ROI</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {analysisData.techniqueAnalysis.overview.timeToRoi}
+                      </p>
+                    </div>
+                  </div>
                   <div className="p-3 rounded-lg bg-white/50">
                     <p className="text-sm text-gray-600">Estimated Cost</p>
                     <p className="text-xl font-bold text-gray-900">
@@ -290,25 +339,31 @@ const SmartFarming: React.FC = () => {
                 </div>
               </div>
 
-              {/* Implementation Steps */}
+              {/* Implementation Steps - Enhanced */}
               <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl shadow-lg">
-                <div className="flex gap-3 items-center mb-4">
+                <div className="flex gap-3 items-center mb-6">
                   <div className="p-2.5 bg-purple-100 rounded-lg">
                     <Settings2 className="w-6 h-6 text-purple-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Implementation Steps</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Implementation Plan</h3>
                 </div>
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-4">
                   {analysisData.implementation.phases.map((phase, index) => (
-                    <div key={index} className="p-3 rounded-lg bg-white/50">
-                      <p className="text-sm font-medium text-purple-600">{phase.name}</p>
-                      <p className="mt-1 text-xs text-gray-500">{phase.duration}</p>
+                    <div key={index} className="relative pl-8">
+                      <div className="absolute left-0 top-2 w-4 h-4 bg-purple-200 rounded-full">
+                        <div className="absolute inset-1 bg-purple-500 rounded-full"></div>
+                      </div>
+                      <div className="p-4 rounded-lg bg-white/50">
+                        <p className="text-sm font-medium text-purple-600">{phase.name}</p>
+                        <p className="mt-1 text-xs text-gray-500">{phase.duration}</p>
+                        <p className="mt-2 text-sm text-gray-600">{phase.description}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Metrics Card */}
+              {/* Metrics Card - Enhanced */}
               <div className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl shadow-lg">
                 <div className="flex gap-3 items-center mb-4">
                   <div className="p-2.5 bg-orange-100 rounded-lg">
@@ -316,21 +371,35 @@ const SmartFarming: React.FC = () => {
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Performance Metrics</h3>
                 </div>
-                <div className="mt-4">
-                  <div className="h-48">
+                <div className="mt-6">
+                  <div className="h-64 md:h-72">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={[
                           { name: "Water", value: analysisData.metrics.resourceEfficiency.water },
                           { name: "Labor", value: analysisData.metrics.resourceEfficiency.labor },
                           { name: "Energy", value: analysisData.metrics.resourceEfficiency.energy },
+                          { name: "Yield", value: analysisData.metrics.resourceEfficiency.yield },
+                          { name: "Sustainability", value: analysisData.metrics.resourceEfficiency.sustainability }
                         ]}
                       >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="value" stroke="#f97316" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis dataKey="name" stroke="#666" />
+                        <YAxis stroke="#666" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "white",
+                            border: "1px solid #f0f0f0",
+                            borderRadius: "8px"
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#f97316"
+                          strokeWidth={2}
+                          dot={{ fill: "#f97316" }}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>

@@ -16,12 +16,18 @@ export interface ModernFarmingResponse {
       name: string
       estimatedCost: number
       roi: number
+      successRate: number
+      timeToRoi: string
+      sustainabilityScore: number
     }
   }
   implementation: {
     phases: Array<{
       name: string
       duration: string
+      description: string
+      keyMilestones: string[]
+      estimatedCost: number
     }>
   }
   metrics: {
@@ -29,6 +35,13 @@ export interface ModernFarmingResponse {
       water: number
       labor: number
       energy: number
+      yield: number
+      sustainability: number
+    }
+    environmentalImpact: {
+      carbonFootprint: number
+      waterConservation: number
+      soilHealth: number
     }
   }
 }
@@ -57,6 +70,9 @@ const DEFAULT_RESPONSE: ModernFarmingResponse = {
       name: "N/A",
       estimatedCost: 0,
       roi: 0,
+      successRate: 0,
+      timeToRoi: "",
+      sustainabilityScore: 0,
     },
   },
   implementation: {
@@ -67,6 +83,13 @@ const DEFAULT_RESPONSE: ModernFarmingResponse = {
       water: 0,
       labor: 0,
       energy: 0,
+      yield: 0,
+      sustainability: 0,
+    },
+    environmentalImpact: {
+      carbonFootprint: 0,
+      waterConservation: 0,
+      soilHealth: 0,
     },
   },
 }
@@ -154,6 +177,10 @@ export const getModernFarmingAnalysis = async (request: ModernFarmingRequest): P
           resourceEfficiency: {
             ...DEFAULT_RESPONSE.metrics.resourceEfficiency,
             ...parsedResponse.metrics?.resourceEfficiency,
+          },
+          environmentalImpact: {
+            ...DEFAULT_RESPONSE.metrics.environmentalImpact,
+            ...parsedResponse.metrics?.environmentalImpact,
           },
         },
       }
