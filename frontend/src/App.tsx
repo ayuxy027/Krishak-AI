@@ -5,7 +5,7 @@ import { Home } from './pages/Home';
 import DiseaseDetection  from './pages/DiseaseDetection';
 import CropAdvisory from './pages/CropAdvisory';
 import { MarketInsights } from './pages/MarketInsights';
-import Water from './pages/Water'; 
+import Water from './pages/SmartFarming'; 
 import Chatbot from './components/Chatbot';
 
 
