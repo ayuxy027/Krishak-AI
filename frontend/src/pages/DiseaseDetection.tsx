@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Microscope, Leaf, Shield, Upload, RefreshCcw, Check, Cpu
 } from 'lucide-react';
-import { toast } from 'react-toastify';
 import clsx from 'clsx';
 import { detectDisease, DiseaseDetectionResult } from '../ai/diseaseDetectionService';
 
@@ -29,13 +28,10 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
     console.log('Initializing Disease Detection component');
     const loadSystem = async () => {
       try {
-        // Simulate model loading
-        toast.info(t('diseaseDetection.initializing'), { autoClose: 2000 });
         await simulateSystemLoad();
         console.log('System initialization complete');
       } catch (error) {
         console.error('System initialization failed:', error);
-        toast.error(t('diseaseDetection.initError'), { autoClose: 3000 });
       }
     };
 
@@ -46,17 +42,14 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
     // Model Loading
     await new Promise(resolve => setTimeout(resolve, 2000));
     setSystemStatus(prev => ({ ...prev, modelLoaded: true }));
-    toast.info(t('diseaseDetection.modelLoaded'), { autoClose: 1500 });
 
     // API Connection
     await new Promise(resolve => setTimeout(resolve, 1500));
     setSystemStatus(prev => ({ ...prev, apiConnected: true }));
-    toast.info(t('diseaseDetection.apiConnected'), { autoClose: 1500 });
 
     // Processing Ready
     await new Promise(resolve => setTimeout(resolve, 1500));
     setSystemStatus(prev => ({ ...prev, processingReady: true }));
-    toast.success(t('diseaseDetection.ready'), { autoClose: 2000 });
   };
 
   const processFile = async (file: File) => {
@@ -71,13 +64,11 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
 
       reader.onerror = (error) => {
         console.error('File reading failed:', error);
-        toast.error(t('diseaseDetection.fileError'));
       };
 
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('File processing failed:', error);
-      toast.error(t('diseaseDetection.processError'));
     }
   };
 
@@ -111,17 +102,9 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
         disease: result.disease,
         confidence: result.confidence
       });
-
-      toast.success(t('diseaseDetection.analysisComplete'), { autoClose: 2000 });
     } catch (error) {
       console.error('Analysis failed:', error);
       clearInterval(progressInterval);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('diseaseDetection.analysisError'),
-        { autoClose: 3000 }
-      );
     } finally {
       setIsAnalyzing(false);
     }
@@ -135,7 +118,6 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
     onDrop: (acceptedFiles, rejectedFiles) => {
       if (rejectedFiles.length > 0) {
         console.warn('Files rejected:', rejectedFiles);
-        toast.error(t('diseaseDetection.invalidFile'));
         return;
       }
       if (acceptedFiles.length > 0) {
