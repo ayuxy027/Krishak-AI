@@ -62,16 +62,17 @@ export const getAIResponse = async (userInput: string): Promise<string> => {
       {
         parts: [
           {
-            text: getAIPrompt(userInput), // Generates an AI prompt specifically for Kisan-AI
+            text: getAIPrompt(userInput),
           },
         ],
       },
     ],
     generationConfig: {
-      temperature: 0.8, // Keeps responses informative yet precise
-      topK: 50,
-      topP: 1,
-      maxOutputTokens: 2048,
+      temperature: 0.75, // Balanced between creativity and accuracy
+      topK: 40,
+      topP: 0.9,
+      maxOutputTokens: 4096, // Increased for richer responses
+      stopSequences: ["Human:", "Assistant:"],
     },
     safetySettings: [
       {

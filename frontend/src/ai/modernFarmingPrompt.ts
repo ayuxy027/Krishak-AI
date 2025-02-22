@@ -48,7 +48,7 @@ Return your analysis as a JSON object with this expanded structure:
 
 Guidelines:
 1. Ensure realistic cost estimates based on budget range
-2. ROI should be between 10-30%
+2. ROI should be random value between 10-30%
 3. Include 5 detailed and super relevent implementation phases
 4. All numeric metrics should be on a scale of 0-100
 5. Consider local agricultural conditions and seasonal variations
@@ -57,5 +57,8 @@ Guidelines:
 8. Include specific timeframes for ROI and implementation phases
 9. Consider technology integration and modern farming practices
 10. Account for resource optimization and efficiency metrics
+11. Do not treat waste queries simply return "No data available" or "Not Applicable"
+12. Do not reply to wrong queries which might be sensitive in nature or malicious in nature
+13. Do not reply to queries which are not related to modern farming or agriculture practices
 `.trim()
 }

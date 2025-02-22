@@ -228,10 +228,10 @@ const MessageComponent: React.FC<{ message: Message; darkMode: boolean }> = ({ m
 
 const QuickActions: React.FC<{ darkMode: boolean; onSelect: (action: string) => void }> = ({ darkMode, onSelect }) => {
   const actions = [
-    { icon: "🔍", label: "Disease Detection", action: "I want to detect crop diseases" },
-    { icon: "🌱", label: "Crop Advisory", action: "I need crop care advice" },
-    { icon: "📊", label: "Market Insights", action: "Show me current market prices" },
-    { icon: "🌤️", label: "Weather Forecast", action: "What's the weather forecast?" },
+    { icon: "🚜", label: "Precision Farming", action: "What is precision agriculture and how can it benefit my farm?" },
+    { icon: "🌱", label: "Smart Solutions", action: "Tell me about smart farming technologies for small farms" },
+    { icon: "🤖", label: "Agri-Robotics", action: "How can I start using agricultural robots on my farm?" },
+    { icon: "📱", label: "Digital Tools", action: "What are the essential digital farming tools for beginners?" },
   ]
 
   return (
@@ -275,12 +275,12 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
   const t = translations[language]
 
   const predefinedQuestions: string[] = [
-    "Detect crop disease",
-    "Planting advice",
-    "Irrigation schedule",
-    "Market prices",
-    "Fertilizer tips",
-    "Weather forecast",
+    "Cost of precision farming",
+    "Beginner automation tools",
+    "Smart irrigation systems",
+    "Drone technology benefits",
+    "Digital farming basics",
+    "ROI of modern farming",
   ]
 
   const scrollToBottom = useCallback(() => {
@@ -435,11 +435,11 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   className={`flex justify-center items-center w-10 h-10 text-base font-bold rounded-full shadow-inner sm:w-12 sm:h-12 sm:text-lg backdrop-blur-sm ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
                     }`}
                 >
-                  AI
+                  MF
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold sm:text-md">AgriTech AI</h3>
-                  <p className="text-xs opacity-90 sm:text-sm">Your farming assistant</p>
+                  <h3 className="text-sm font-semibold sm:text-md">Kisan AI</h3>
+                  <p className="text-xs opacity-90 sm:text-sm">Your Agriculture Innovation Guide</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">

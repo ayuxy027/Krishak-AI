@@ -7,12 +7,11 @@ import {
   BarChart3,
   MessageSquare,
   ArrowRight,
-  Users,
-  Sparkles,
   TrendingUp,
   Clock,
   ChevronRight
 } from 'lucide-react';
+import Market from '../components/Market';
 
 interface Stat {
   value: string;
@@ -258,28 +257,6 @@ export const Home: React.FC = () => {
         }
       ],
       link: true
-    },
-    {
-      icon: Users,
-      title: "Community Support",
-      description: "Connect with fellow farmers and experts worldwide",
-      color: 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white',
-      stats: [
-        {
-          value: '25K+',
-          label: 'Community Members',
-          trend: 22.4
-        }
-      ],
-      link: true
-    },
-    {
-      icon: Sparkles,
-      title: "Innovative Solutions",
-      description: "Explore cutting-edge farming technologies and practices",
-      color: 'bg-gradient-to-br from-green-600 to-green-700 text-white',
-      badge: 'Coming Soon',
-      link: true
     }
   ];
 
@@ -334,11 +311,19 @@ export const Home: React.FC = () => {
           </motion.div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)] mb-20">
           {features.map((feature, index) => (
             <FeatureCard key={index} {...feature} index={index} />
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <Market />
+        </motion.div>
       </div>
     </div>
   );

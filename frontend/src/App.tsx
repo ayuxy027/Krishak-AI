@@ -31,6 +31,7 @@ function App() {
             {/* @ts-ignore  */}
             <Route path="/" element={<Home t={t} />} />
             <Route path="/disease-detection" element={<DiseaseDetection t={t} />} />
+            {/* @ts-ignore  */}
             <Route path="/crop-advisory" element={<CropAdvisory t={t} />} />
             <Route path="/market-insights" element={<MarketInsights t={t} />} />
             {/* @ts-ignore  */}
