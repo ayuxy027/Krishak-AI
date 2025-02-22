@@ -1,97 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
-  Leaf, Droplets, Sun, Wind,
-  TrendingUp, AlertCircle, Settings2,
-  BarChart3, Cpu, Database, Info, Activity
-} from 'lucide-react';
-import { getModernFarmingAnalysis } from '../ai/modernFarmingService';
-import type { ModernFarmingResponse } from '../ai/modernFarmingService';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import toast from 'react-hot-toast';
+  Leaf,
+  Droplets,
+  Sun,
+  Fish,
+  TrendingUp,
+  AlertCircle,
+  BarChart3,
+  Cpu,
+  Database,
+  Info,
+  Activity,
+  TreePine,
+  Settings2
+} from "lucide-react"
+import { getModernFarmingAnalysis, type ModernFarmingResponse, type ModernFarmingRequest } from "../ai/modernFarmingService"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { toast, Toaster } from "react-hot-toast"
 
 const techniques = [
-  { id: 'hydroponics', name: 'Hydroponics', icon: Droplets },
-  { id: 'vertical', name: 'Vertical Farming', icon: Leaf },
-  { id: 'precision', name: 'Precision Agriculture', icon: Settings2 },
-  { id: 'greenhouse', name: 'Smart Greenhouse', icon: Sun },
-  { id: 'aquaponics', name: 'Aquaponics', icon: Wind }
-];
+  { id: "soil_farming", name: "Soil-Based Farming", icon: Droplets },
+  { id: "organic_farming", name: "Organic Farming", icon: Leaf },
+  { id: "rainwater_farming", name: "Rainwater Farming", icon: TreePine },
+  { id: "polyhouse_farming", name: "Polyhouse Farming", icon: Sun },
+  { id: "integrated_farming", name: "Fish Farming", icon: Fish },
+] as const;
 
 const budgetOptions = [
-  { value: 'low', label: 'Small Scale (< ₹5L)' },
-  { value: 'medium', label: 'Medium Scale (₹5L - ₹20L)' },
-  { value: 'high', label: 'Large Scale (> ₹20L)' }
-];
+  { value: "low", label: "Small Scale (< ₹5L)" },
+  { value: "medium", label: "Medium Scale (₹5L - ₹20L)" },
+  { value: "high", label: "Large Scale (> ₹20L)" },
+] as const
 
 const SmartFarming: React.FC = () => {
-  const [selectedTechnique, setSelectedTechnique] = useState('');
-  const [selectedBudget, setSelectedBudget] = useState<'low' | 'medium' | 'high'>('medium');
-  const [farmSize, setFarmSize] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [analysisData, setAnalysisData] = useState<ModernFarmingResponse | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const [showSystemInfo, setShowSystemInfo] = useState(true);
+  const [selectedTechnique, setSelectedTechnique] = useState<string>("")
+  const [selectedBudget, setSelectedBudget] = useState<ModernFarmingRequest["budget"]>("medium")
+  const [farmSize, setFarmSize] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+  const [analysisData, setAnalysisData] = useState<ModernFarmingResponse | null>(null)
+  const [showSystemInfo, setShowSystemInfo] = useState<boolean>(false)
 
   useEffect(() => {
-    setMounted(true);
     // Refresh data every 5 minutes if analysis exists
     const refreshInterval = setInterval(() => {
       if (analysisData) {
-        handleAnalysis();
+        handleAnalysis()
       }
-    }, 300000);
+    }, 300000)
 
-    return () => clearInterval(refreshInterval);
-  }, [analysisData]);
+    return () => clearInterval(refreshInterval)
+  }, [analysisData])
 
   const handleAnalysis = async () => {
     if (!selectedTechnique || !farmSize) {
-      toast.error('Please select technique and farm size', {
+      toast.error("Please select technique and farm size", {
         style: {
-          background: '#FF5757',
-          color: '#fff',
-          padding: '16px',
-          borderRadius: '8px',
+          background: "#FF5757",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "8px",
         },
-      });
-      return;
+      })
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     const analysisPromise = getModernFarmingAnalysis({
       technique: selectedTechnique,
       farmSize,
-      budget: selectedBudget
-    });
+      budget: selectedBudget,
+    })
 
     toast.promise(
       analysisPromise,
       {
-        loading: 'Generating farming analysis...',
-        success: 'Analysis completed successfully',
-        error: 'Failed to generate analysis',
+        loading: "Generating farming analysis...",
+        success: "Analysis completed successfully",
+        error: "Failed to generate analysis",
       },
       {
         style: {
-          minWidth: '250px',
-          padding: '16px',
-          borderRadius: '8px',
+          minWidth: "250px",
+          padding: "16px",
+          borderRadius: "8px",
         },
-      }
-    );
+      },
+    )
 
     try {
-      const data = await analysisPromise;
-      setAnalysisData(data);
-      setLoading(false);
+      const data = await analysisPromise
+      setAnalysisData(data)
     } catch (err) {
-      console.error('Analysis Error:', err);
-      setLoading(false);
+      console.error("Analysis Error:", err)
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
-  const SystemStatus = () => (
+  const SystemStatus: React.FC = () => (
     <div className="absolute top-4 right-4 z-10">
       <div
         className="relative"
@@ -143,12 +153,11 @@ const SmartFarming: React.FC = () => {
         )}
       </div>
     </div>
-  );
-
-  if (!mounted) return null;
+  )
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <Toaster position="top-right" />
       <SystemStatus />
       <div className="px-4 py-6 mx-auto max-w-7xl md:py-12 sm:px-6 lg:px-8">
         {/* Header Section */}
@@ -176,8 +185,8 @@ const SmartFarming: React.FC = () => {
                     key={tech.id}
                     onClick={() => setSelectedTechnique(tech.id)}
                     className={`p-3 rounded-lg border transition-all ${selectedTechnique === tech.id
-                        ? 'border-blue-500 bg-blue-50 text-blue-600'
-                        : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50/50'
+                        ? "border-blue-500 bg-blue-50 text-blue-600"
+                        : "border-gray-200 hover:border-blue-200 hover:bg-blue-50/50"
                       }`}
                   >
                     <tech.icon className="mx-auto mb-2 w-6 h-6" />
@@ -198,7 +207,7 @@ const SmartFarming: React.FC = () => {
               {/* Budget Selection */}
               <select
                 value={selectedBudget}
-                onChange={(e) => setSelectedBudget(e.target.value as 'low' | 'medium' | 'high')}
+                onChange={(e) => setSelectedBudget(e.target.value as ModernFarmingRequest["budget"])}
                 className="block px-4 py-2.5 w-full rounded-lg border border-gray-200 bg-white/50 focus:border-blue-500 focus:ring-blue-500"
               >
                 {budgetOptions.map((option) => (
@@ -234,13 +243,18 @@ const SmartFarming: React.FC = () => {
         <AnimatePresence>
           {loading ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {Array(3).fill(0).map((_, index) => (
-                <div key={index} className="p-6 bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl shadow-lg animate-pulse">
-                  <div className="mb-4 w-12 h-12 bg-gray-200 rounded-full" />
-                  <div className="mb-2 w-3/4 h-4 bg-gray-200 rounded" />
-                  <div className="w-1/2 h-4 bg-gray-200 rounded" />
-                </div>
-              ))}
+              {Array(3)
+                .fill(0)
+                .map((_, index) => (
+                  <div
+                    key={index}
+                    className="p-6 bg-gradient-to-br from-gray-100 to-gray-50 rounded-xl shadow-lg animate-pulse"
+                  >
+                    <div className="mb-4 w-12 h-12 bg-gray-200 rounded-full" />
+                    <div className="mb-2 w-3/4 h-4 bg-gray-200 rounded" />
+                    <div className="w-1/2 h-4 bg-gray-200 rounded" />
+                  </div>
+                ))}
             </div>
           ) : analysisData ? (
             <motion.div
@@ -271,9 +285,7 @@ const SmartFarming: React.FC = () => {
                   </div>
                   <div className="p-3 rounded-lg bg-white/50">
                     <p className="text-sm text-gray-600">ROI</p>
-                    <p className="text-xl font-bold text-green-600">
-                      {analysisData.techniqueAnalysis.overview.roi}%
-                    </p>
+                    <p className="text-xl font-bold text-green-600">{analysisData.techniqueAnalysis.overview.roi}%</p>
                   </div>
                 </div>
               </div>
@@ -307,11 +319,13 @@ const SmartFarming: React.FC = () => {
                 <div className="mt-4">
                   <div className="h-48">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={[
-                        { name: 'Water', value: analysisData.metrics.resourceEfficiency.water },
-                        { name: 'Labor', value: analysisData.metrics.resourceEfficiency.labor },
-                        { name: 'Energy', value: analysisData.metrics.resourceEfficiency.energy }
-                      ]}>
+                      <LineChart
+                        data={[
+                          { name: "Water", value: analysisData.metrics.resourceEfficiency.water },
+                          { name: "Labor", value: analysisData.metrics.resourceEfficiency.labor },
+                          { name: "Energy", value: analysisData.metrics.resourceEfficiency.energy },
+                        ]}
+                      >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
@@ -328,12 +342,8 @@ const SmartFarming: React.FC = () => {
               <div className="inline-block p-4 mb-4 bg-blue-50 rounded-full">
                 <AlertCircle className="w-8 h-8 text-blue-600" />
               </div>
-              <p className="text-lg font-medium text-gray-700">
-                Select a technique and farm size to begin analysis
-              </p>
-              <p className="mt-2 text-sm text-gray-500">
-                Get AI-powered insights for implementation
-              </p>
+              <p className="text-lg font-medium text-gray-700">Select a technique and farm size to begin analysis</p>
+              <p className="mt-2 text-sm text-gray-500">Get AI-powered insights for implementation</p>
             </div>
           )}
         </AnimatePresence>
@@ -347,7 +357,8 @@ const SmartFarming: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SmartFarming;
+export default SmartFarming
+

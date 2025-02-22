@@ -1,10 +1,6 @@
-export interface ModernFarmingInput {
-  technique: string;
-  farmSize: string;
-  budget: string;
-}
+import type { ModernFarmingRequest } from "./modernFarmingService"
 
-export const generateModernFarmingPrompt = ({ technique, farmSize, budget }: ModernFarmingInput): string => {
+export const generateModernFarmingPrompt = ({ technique, farmSize, budget }: ModernFarmingRequest): string => {
   return `You are an AI agricultural technology expert. Generate a modern farming analysis report in JSON format for:
 
 Technique: ${technique}
@@ -45,5 +41,5 @@ Guidelines:
 5. Consider local agricultural conditions
 6. Provide practical implementation steps
 7. Focus on sustainable practices
-`.trim();
-}; 
+`.trim()
+}
