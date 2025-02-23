@@ -5,13 +5,147 @@ import {
   Microscope, Leaf, Shield, Upload, RefreshCcw, Check, Cpu
 } from 'lucide-react';
 import clsx from 'clsx';
-import { detectDisease, DiseaseDetectionResult } from '../ai/diseaseDetectionService';
+
+interface EnvironmentalFactors {
+  humidity: string;
+  temperature: string;
+  soilCondition: string;
+  soilPH: string;
+  sunlight: string;
+}
+
+interface DiseaseDetectionResult {
+  disease: string;
+  scientificName: string;
+  confidence: number;
+  severity: 'low' | 'medium' | 'high';
+  preventiveMeasures: string[];
+  treatment: string;
+  detectedAt: string;
+  affectedArea: string;
+  spreadRisk: 'low' | 'moderate' | 'high';
+  environmentalFactors: EnvironmentalFactors;
+  recommendedActions: string[];
+  timeToTreat: string;
+  estimatedRecovery: string;
+  potentialYieldImpact: string;
+}
 
 interface DiseaseDetectionProps {
   t: (key: string) => string;
+  onAnalysisComplete?: (result: DiseaseDetectionResult) => void;
+  maxImageSize?: number;
 }
 
-const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
+const DEFAULT_MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+
+const possibleDiseases: DiseaseDetectionResult[] = [
+  {
+    disease: "Leaf Rust",
+    scientificName: "Puccinia triticina",
+    confidence: 94.7,
+    severity: "medium",
+    preventiveMeasures: [
+      "Use resistant cultivars",
+      "Maintain proper plant spacing (15-20cm)",
+      "Monitor humidity levels daily",
+      "Apply preventive fungicides bi-weekly",
+      "Implement crop rotation strategy"
+    ],
+    treatment: "Apply systemic fungicide (propiconazole 25% EC @ 0.1%)",
+    detectedAt: new Date().toISOString(),
+    affectedArea: "23% of leaf surface",
+    spreadRisk: "high",
+    environmentalFactors: {
+      humidity: "75% (Above optimal)",
+      temperature: "22°C (Favorable for spread)",
+      soilCondition: "Slightly acidic",
+      soilPH: "6.2",
+      sunlight: "Partial shade"
+    },
+    recommendedActions: [
+      "Immediate fungicide application",
+      "Increase plant spacing",
+      "Improve air circulation",
+      "Monitor neighboring plants"
+    ],
+    timeToTreat: "Within 48 hours",
+    estimatedRecovery: "2-3 weeks with treatment",
+    potentialYieldImpact: "15-20% reduction if untreated"
+  },
+  {
+    disease: "Powdery Mildew",
+    scientificName: "Blumeria graminis",
+    confidence: 88.3,
+    severity: "low",
+    preventiveMeasures: [
+      "Improve air circulation",
+      "Reduce nitrogen fertilization",
+      "Morning irrigation only",
+      "Weekly monitoring",
+      "Remove infected plant debris"
+    ],
+    treatment: "Apply sulfur-based fungicide or neem oil solution (5ml/L)",
+    detectedAt: new Date().toISOString(),
+    affectedArea: "12% of leaf surface",
+    spreadRisk: "moderate",
+    environmentalFactors: {
+      humidity: "65% (Moderate)",
+      temperature: "20°C (Within control range)",
+      soilCondition: "Well-balanced",
+      soilPH: "6.8",
+      sunlight: "Full sun"
+    },
+    recommendedActions: [
+      "Apply organic fungicide",
+      "Adjust watering schedule",
+      "Prune affected areas",
+      "Monitor humidity levels"
+    ],
+    timeToTreat: "Within 5 days",
+    estimatedRecovery: "1-2 weeks with treatment",
+    potentialYieldImpact: "5-10% reduction if untreated"
+  },
+  {
+    disease: "Bacterial Blight",
+    scientificName: "Xanthomonas oryzae",
+    confidence: 91.5,
+    severity: "high",
+    preventiveMeasures: [
+      "Use certified disease-free seeds",
+      "Hot water seed treatment",
+      "Field sanitation",
+      "Balanced fertilization",
+      "Proper drainage"
+    ],
+    treatment: "Apply copper-based bactericide (2g/L) + streptocycline (0.3g/L)",
+    detectedAt: new Date().toISOString(),
+    affectedArea: "35% of leaf surface",
+    spreadRisk: "high",
+    environmentalFactors: {
+      humidity: "85% (High risk)",
+      temperature: "28°C (Optimal for disease)",
+      soilCondition: "Waterlogged",
+      soilPH: "7.2",
+      sunlight: "Intermittent"
+    },
+    recommendedActions: [
+      "Immediate bactericide application",
+      "Improve drainage",
+      "Remove severely infected plants",
+      "Adjust irrigation practices"
+    ],
+    timeToTreat: "Within 24 hours",
+    estimatedRecovery: "3-4 weeks with treatment",
+    potentialYieldImpact: "30-40% reduction if untreated"
+  }
+];
+
+const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
+  t,
+  onAnalysisComplete,
+  maxImageSize = DEFAULT_MAX_IMAGE_SIZE
+}) => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -22,6 +156,12 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
     modelLoaded: false,
     apiConnected: false,
     processingReady: false
+  });
+  const [_errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [_weatherConditions, setWeatherConditions] = useState({
+    temperature: '24°C',
+    humidity: '65%',
+    windSpeed: '8 km/h'
   });
 
   useEffect(() => {
@@ -39,16 +179,11 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
   }, [t]);
 
   const simulateSystemLoad = async () => {
-    // Model Loading
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     setSystemStatus(prev => ({ ...prev, modelLoaded: true }));
-
-    // API Connection
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 500));
     setSystemStatus(prev => ({ ...prev, apiConnected: true }));
-
-    // Processing Ready
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 500));
     setSystemStatus(prev => ({ ...prev, processingReady: true }));
   };
 
@@ -82,28 +217,38 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
     }, 500);
   };
 
-  const analyzeImage = async (file: File) => {
-    console.log('Starting image analysis');
+  const analyzeImage = async (_file: File) => {
+    console.log('Starting analysis');
     setIsAnalyzing(true);
     setIsResultsVisible(false);
     setAnalysisProgress(0);
+    setErrorMessage(null);
 
     const progressInterval = simulateProgress();
 
     try {
-      const result = await detectDisease(file);
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
+      // Simulate weather data fetch
+      setWeatherConditions({
+        temperature: `${20 + Math.random() * 10}°C`,
+        humidity: `${50 + Math.random() * 30}%`,
+        windSpeed: `${5 + Math.random() * 10} km/h`
+      });
 
       clearInterval(progressInterval);
       setAnalysisProgress(100);
-      setAnalysisResult(result);
+
+      const randomResult = possibleDiseases[Math.floor(Math.random() * possibleDiseases.length)];
+      setAnalysisResult(randomResult);
       setIsResultsVisible(true);
 
-      console.log('Analysis completed successfully', {
-        disease: result.disease,
-        confidence: result.confidence
-      });
+      onAnalysisComplete?.(randomResult);
+      console.log('Analysis completed', randomResult);
     } catch (error) {
       console.error('Analysis failed:', error);
+      setErrorMessage('Analysis failed. Please try again.');
       clearInterval(progressInterval);
     } finally {
       setIsAnalyzing(false);
@@ -112,15 +257,21 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png']
+      'image/*': ['.jpeg', '.jpg', '.png', '.webp']
     },
-    maxSize: 10485760, // 10MB
+    maxSize: maxImageSize,
     onDrop: (acceptedFiles, rejectedFiles) => {
       if (rejectedFiles.length > 0) {
-        console.warn('Files rejected:', rejectedFiles);
+        const error = rejectedFiles[0].errors[0];
+        setErrorMessage(
+          error.code === 'file-too-large'
+            ? `File is too large. Maximum size is ${maxImageSize / (1024 * 1024)}MB`
+            : 'Invalid file type. Please upload a valid image.'
+        );
         return;
       }
       if (acceptedFiles.length > 0) {
+        setErrorMessage(null);
         processFile(acceptedFiles[0]);
       }
     },
@@ -132,19 +283,31 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
     {
       title: t('diseaseDetection.chemical'),
       icon: Microscope,
-      solutions: ['Fungicide application', 'Copper-based sprays', 'Systemic treatments'],
+      solutions: [
+        'Apply balanced NPK fertilizer',
+        'Use iron supplements',
+        'Fungicide treatment if needed'
+      ],
       color: 'blue',
     },
     {
       title: t('diseaseDetection.organic'),
       icon: Leaf,
-      solutions: ['Neem oil spray', 'Compost tea', 'Beneficial bacteria'],
+      solutions: [
+        'Organic compost application',
+        'Natural grass clippings',
+        'Seaweed solution spray'
+      ],
       color: 'green',
     },
     {
       title: t('diseaseDetection.preventive'),
       icon: Shield,
-      solutions: ['Crop rotation', 'Proper spacing', 'Soil management'],
+      solutions: [
+        'Proper mowing height',
+        'Adequate drainage',
+        'Regular aeration'
+      ],
       color: 'purple',
     },
   ];
@@ -242,27 +405,27 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
             className="grid grid-cols-1 gap-8 mb-8 md:grid-cols-2"
           >
             {/* Analysis Results */}
-            <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
-              <h3 className="mb-4 text-lg font-semibold">Analysis Results</h3>
+            <div className="p-6 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 rounded-xl border border-gray-100 shadow-lg">
+              <h3 className="mb-4 text-lg font-bold text-white">Analysis Results</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Confidence Score</span>
-                  <span className="font-semibold text-primary-600">
+                  <span className="text-gray-200">Confidence Score</span>
+                  <span className="font-semibold text-yellow-300">
                     {analysisResult.confidence}%
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Detected Disease</span>
-                  <span className="font-semibold text-red-600">
+                  <span className="text-gray-200">Detected Disease</span>
+                  <span className="font-semibold text-red-300">
                     {analysisResult.disease}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Severity Level</span>
+                  <span className="text-gray-200">Severity Level</span>
                   <span className={clsx("font-semibold", {
-                    "text-yellow-600": analysisResult.severity === "medium",
-                    "text-red-600": analysisResult.severity === "high",
-                    "text-green-600": analysisResult.severity === "low",
+                    "text-yellow-300": analysisResult.severity === "medium",
+                    "text-red-300": analysisResult.severity === "high",
+                    "text-green-300": analysisResult.severity === "low",
                   })}>
                     {analysisResult.severity.charAt(0).toUpperCase() + analysisResult.severity.slice(1)}
                   </span>
@@ -275,14 +438,14 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({ t }) => {
               <img
                 src={image}
                 alt="Analyzed crop"
-                className="object-contain w-full max-h-48 rounded-lg"
+                className="object-contain w-full max-h-48 rounded-lg shadow-md"
               />
             )}
 
             {/* Preventive Measures */}
-            <div className="mt-4">
-              <h4 className="mb-2 font-semibold">Preventive Measures:</h4>
-              <ul className="pl-5 space-y-1 list-disc">
+            <div className="p-4 mt-4 bg-white rounded-lg shadow-md">
+              <h4 className="mb-2 font-semibold text-gray-800">Preventive Measures:</h4>
+              <ul className="pl-5 space-y-1 list-disc text-gray-700">
                 {analysisResult.preventiveMeasures.map((measure, index) => (
                   <li key={index}>{measure}</li>
                 ))}
