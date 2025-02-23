@@ -313,48 +313,71 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
   ];
 
   return (
-    <div className="container px-4 py-8 mx-auto">
-      {/* System Status Panel */}
-      <div className="p-4 mb-8 bg-white rounded-xl border border-gray-100 shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="flex gap-2 items-center text-lg font-semibold">
-            <Cpu className="w-5 h-5 text-primary-600" />
-            System Status
-          </h3>
-          <div className="flex gap-2">
+    <div className="container px-4 py-8 mx-auto max-w-7xl">
+      {/* Dashboard Header - Made Responsive */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl lg:text-4xl">
+          Plant Disease Detection Dashboard
+        </h1>
+        <p className="mt-2 text-sm text-gray-600 md:text-base">
+          Upload and analyze plant images for disease detection
+        </p>
+      </div>
+
+      {/* System Status Panel - Made Responsive */}
+      <div className="p-4 mb-8 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+        <div className="flex flex-col gap-4 justify-between items-start mb-6 md:flex-row md:items-center">
+          <div className="flex gap-3 items-center">
+            <Cpu className="w-5 h-5 md:w-6 md:h-6 text-primary-600" />
+            <h3 className="text-lg font-semibold text-gray-800 md:text-xl">System Diagnostics</h3>
+          </div>
+          <div className="px-4 py-2 bg-gray-50 rounded-full">
             {Object.values(systemStatus).every(status => status) ? (
-              <span className="flex gap-1 items-center text-sm text-green-600">
-                <Check className="w-4 h-4" /> Ready
+              <span className="flex gap-2 items-center text-sm font-medium text-green-600">
+                <Check className="w-4 h-4" /> System Ready
               </span>
             ) : (
-              <span className="flex gap-1 items-center text-sm text-amber-600">
-                <RefreshCcw className="w-4 h-4 animate-spin" /> Initializing
+              <span className="flex gap-2 items-center text-sm font-medium text-amber-600">
+                <RefreshCcw className="w-4 h-4 animate-spin" /> Initializing Systems
               </span>
             )}
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
           {Object.entries(systemStatus).map(([key, status]) => (
-            <div key={key} className="flex gap-2 items-center">
-              {status ? (
-                <Check className="w-4 h-4 text-green-600" />
-              ) : (
-                <RefreshCcw className="w-4 h-4 text-amber-600 animate-spin" />
-              )}
-              <span className="text-sm text-gray-600">
-                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-              </span>
+            <div key={key} className="p-4 bg-gray-50 rounded-lg">
+              <div className="flex gap-3 items-center">
+                {status ? (
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <Check className="w-5 h-5 text-green-600" />
+                  </div>
+                ) : (
+                  <div className="p-2 bg-amber-100 rounded-full">
+                    <RefreshCcw className="w-5 h-5 text-amber-600 animate-spin" />
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {status ? 'Operational' : 'Initializing...'}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Upload Section */}
+      {/* Upload Section - Enhanced Responsive Design */}
       <div className="mb-8">
         <div
           {...getRootProps()}
           className={clsx(
-            "p-8 text-center rounded-xl border-2 border-dashed transition-colors duration-200",
+            "relative p-4 rounded-xl border-dashed transition-all duration-300 md:p-8 border-3",
+            "bg-gradient-to-r from-gray-50 to-white",
+            "transform hover:shadow-lg hover:-translate-y-1",
             {
               "border-primary-500 bg-primary-50": isDragActive,
               "border-gray-300 hover:border-primary-500": !isDragActive,
@@ -362,13 +385,25 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
           )}
         >
           <input {...getInputProps()} />
-          <Upload className="mx-auto mb-4 w-12 h-12 text-gray-400" />
-          <p className="mb-2 text-gray-600">{t('diseaseDetection.dragDropText')}</p>
-          <p className="text-sm text-gray-500">{t('diseaseDetection.uploadInstructions')}</p>
+          <div className="flex flex-col items-center">
+            <div className={clsx(
+              "p-4 mb-4 rounded-full transition-all duration-300",
+              isDragActive ? "bg-primary-100" : "bg-gray-100"
+            )}>
+              <Upload className="w-10 h-10 text-primary-600" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">
+              {t('diseaseDetection.dragDropText')}
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">{t('diseaseDetection.uploadInstructions')}</p>
+            <button className="px-6 py-2 text-sm font-medium text-white rounded-full bg-primary-600 hover:bg-primary-700">
+              Select File
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Analysis Progress */}
+      {/* Analysis Progress - Sophisticated */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
@@ -377,119 +412,235 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
             exit={{ opacity: 0, y: -20 }}
             className="mb-8"
           >
-            <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Analysis Progress</h3>
-                <span className="text-sm text-gray-600">{analysisProgress}%</span>
+            <div className="p-6 bg-white rounded-xl border border-gray-200 shadow-lg">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex gap-3 items-center">
+                  <RefreshCcw className="w-6 h-6 animate-spin text-primary-600" />
+                  <h3 className="text-xl font-semibold text-gray-800">Analysis in Progress</h3>
+                </div>
+                <span className="px-4 py-2 text-sm font-medium rounded-full text-primary-600 bg-primary-50">
+                  {analysisProgress}% Complete
+                </span>
               </div>
-              <div className="w-full h-2 bg-gray-200 rounded-full">
+              <div className="overflow-hidden relative mb-4 w-full h-3 bg-gray-100 rounded-full">
                 <motion.div
-                  className="h-2 rounded-full bg-primary-600"
+                  className="absolute top-0 left-0 h-full bg-primary-600"
                   initial={{ width: "0%" }}
                   animate={{ width: `${analysisProgress}%` }}
                   transition={{ duration: 0.5 }}
                 />
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                {['Image Processing', 'Disease Analysis', 'Risk Assessment', 'Report Generation'].map((step, index) => (
+                  <div key={step} className="text-center">
+                    <div className={clsx(
+                      "mx-auto mb-2 w-8 h-8 rounded-full flex items-center justify-center",
+                      analysisProgress >= (index + 1) * 25 ? "bg-primary-100" : "bg-gray-100"
+                    )}>
+                      <span className={clsx(
+                        "text-sm font-medium",
+                        analysisProgress >= (index + 1) * 25 ? "text-primary-600" : "text-gray-400"
+                      )}>{index + 1}</span>
+                    </div>
+                    <p className="text-sm text-gray-600">{step}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Results Section */}
+      {/* Results Section - Enhanced Responsive Grid */}
       <AnimatePresence>
         {isResultsVisible && analysisResult && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-1 gap-8 mb-8 md:grid-cols-2"
+            className="space-y-6 md:space-y-8"
           >
-            {/* Analysis Results */}
-            <div className="p-6 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 rounded-xl border border-gray-100 shadow-lg">
-              <h3 className="mb-4 text-lg font-bold text-white">Analysis Results</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-200">Confidence Score</span>
-                  <span className="font-semibold text-yellow-300">
-                    {analysisResult.confidence}%
-                  </span>
+            {/* Primary Results Card - Responsive Layout */}
+            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 md:gap-8">
+                <div>
+                  <h3 className="mb-6 text-2xl font-bold text-gray-900">Detection Results</h3>
+                  <table className="w-full">
+                    <tbody>
+                      <tr className="border-b border-gray-100">
+                        <td className="py-3 text-gray-600">Disease</td>
+                        <td className="py-3 font-medium text-right text-gray-900">{analysisResult.disease}</td>
+                      </tr>
+                      <tr className="border-b border-gray-100">
+                        <td className="py-3 text-gray-600">Scientific Name</td>
+                        <td className="py-3 font-medium text-right text-gray-900">{analysisResult.scientificName}</td>
+                      </tr>
+                      <tr className="border-b border-gray-100">
+                        <td className="py-3 text-gray-600">Confidence</td>
+                        <td className="py-3 font-medium text-right text-primary-600">{analysisResult.confidence}%</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 text-gray-600">Severity</td>
+                        <td className="py-3 text-right">
+                          <span className={clsx(
+                            "px-3 py-1 text-sm font-medium rounded-full",
+                            {
+                              "bg-red-100 text-red-700": analysisResult.severity === "high",
+                              "bg-yellow-100 text-yellow-700": analysisResult.severity === "medium",
+                              "bg-green-100 text-green-700": analysisResult.severity === "low",
+                            }
+                          )}>
+                            {analysisResult.severity.toUpperCase()}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-200">Detected Disease</span>
-                  <span className="font-semibold text-red-300">
-                    {analysisResult.disease}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-200">Severity Level</span>
-                  <span className={clsx("font-semibold", {
-                    "text-yellow-300": analysisResult.severity === "medium",
-                    "text-red-300": analysisResult.severity === "high",
-                    "text-green-300": analysisResult.severity === "low",
-                  })}>
-                    {analysisResult.severity.charAt(0).toUpperCase() + analysisResult.severity.slice(1)}
-                  </span>
+
+                {/* Image Preview */}
+                {image && (
+                  <div className="relative">
+                    <img
+                      src={image}
+                      alt="Analyzed crop"
+                      className="w-full h-full rounded-lg shadow-lg"
+                    />
+                    <div className="absolute right-0 bottom-0 left-0 p-4 bg-gradient-to-t to-transparent rounded-b-lg from-black/70">
+                      <p className="text-sm font-medium text-white">
+                        Affected Area: {analysisResult.affectedArea}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Environmental Factors - Responsive Table */}
+            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900 md:mb-6 md:text-xl">
+                Environmental Analysis
+              </h3>
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="pb-3 text-sm font-medium text-left text-gray-500">Factor</th>
+                        <th className="pb-3 text-sm font-medium text-left text-gray-500">Current Value</th>
+                        <th className="pb-3 text-sm font-medium text-left text-gray-500">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(analysisResult.environmentalFactors).map(([factor, value]) => (
+                        <tr key={factor} className="border-b border-gray-100">
+                          <td className="py-3 text-sm text-gray-900 capitalize">
+                            {factor.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                          </td>
+                          <td className="py-3 text-sm font-medium text-gray-900">{value}</td>
+                          <td className="py-3">
+                            <span className="px-3 py-1 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-full">
+                              Monitoring
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
 
-            {/* Image Preview */}
-            {image && (
-              <img
-                src={image}
-                alt="Analyzed crop"
-                className="object-contain w-full max-h-48 rounded-lg shadow-md"
-              />
-            )}
+            {/* Treatment Timeline - Responsive Stack */}
+            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900 md:mb-6 md:text-xl">
+                Treatment Timeline
+              </h3>
+              <div className="flex flex-col justify-between items-stretch md:flex-row md:items-center">
+                <div className="flex-1 p-4 text-center">
+                  <p className="mb-2 text-sm text-gray-600">Time to Treat</p>
+                  <p className="text-lg font-semibold text-primary-600">{analysisResult.timeToTreat}</p>
+                </div>
+                <div className="flex-1 p-4 text-center border-gray-200 border-x">
+                  <p className="mb-2 text-sm text-gray-600">Estimated Recovery</p>
+                  <p className="text-lg font-semibold text-green-600">{analysisResult.estimatedRecovery}</p>
+                </div>
+                <div className="flex-1 p-4 text-center">
+                  <p className="mb-2 text-sm text-gray-600">Yield Impact</p>
+                  <p className="text-lg font-semibold text-red-600">{analysisResult.potentialYieldImpact}</p>
+                </div>
+              </div>
+            </div>
 
-            {/* Preventive Measures */}
-            <div className="p-4 mt-4 bg-white rounded-lg shadow-md">
-              <h4 className="mb-2 font-semibold text-gray-800">Preventive Measures:</h4>
-              <ul className="pl-5 space-y-1 list-disc text-gray-700">
-                {analysisResult.preventiveMeasures.map((measure, index) => (
-                  <li key={index}>{measure}</li>
-                ))}
-              </ul>
+            {/* Solutions Grid - Responsive Layout */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-6">
+              {solutions.map((solution) => (
+                <div
+                  key={solution.title}
+                  className="p-4 md:p-6 bg-white rounded-xl border border-gray-200 shadow-lg 
+                           transition-all duration-300 hover:shadow-xl hover:scale-[1.02]
+                           transform hover:-translate-y-1"
+                >
+                  <div className={clsx(
+                    "p-3 w-fit rounded-full mb-4",
+                    {
+                      "bg-blue-100": solution.color === "blue",
+                      "bg-green-100": solution.color === "green",
+                      "bg-purple-100": solution.color === "purple",
+                    }
+                  )}>
+                    <solution.icon
+                      className={clsx("w-6 h-6", {
+                        "text-blue-600": solution.color === "blue",
+                        "text-green-600": solution.color === "green",
+                        "text-purple-600": solution.color === "purple",
+                      })}
+                    />
+                  </div>
+                  <h3 className="mb-4 text-lg font-semibold text-gray-900">{solution.title}</h3>
+                  <ul className="space-y-3">
+                    {solution.solutions.map((item, index) => (
+                      <li key={index} className="flex gap-3 items-center text-gray-700">
+                        <Check className="w-5 h-5 text-green-500" />
+                        <span className="text-sm">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Real-time Updates Section - New Addition */}
+            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 md:text-xl">Real-time Monitoring</h3>
+                <span className="flex gap-2 items-center text-green-600">
+                  <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                  Live
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Disease Spread Risk</p>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-xl font-semibold text-gray-900">{analysisResult.spreadRisk}</span>
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                      className={clsx("w-3 h-3 rounded-full", {
+                        "bg-red-500": analysisResult.spreadRisk === "high",
+                        "bg-yellow-500": analysisResult.spreadRisk === "moderate",
+                        "bg-green-500": analysisResult.spreadRisk === "low",
+                      })}
+                    />
+                  </div>
+                </div>
+                {/* Add more real-time monitoring widgets as needed */}
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Solutions Grid */}
-      {isResultsVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 gap-6 md:grid-cols-3"
-        >
-          {solutions.map((solution) => (
-            <div
-              key={solution.title}
-              className={clsx(
-                "p-6 bg-white rounded-xl border border-gray-100 shadow-sm",
-                "transition-transform transform hover:scale-105"
-              )}
-            >
-              <solution.icon
-                className={clsx("w-12 h-12 mb-4", {
-                  "text-blue-600": solution.color === "blue",
-                  "text-green-600": solution.color === "green",
-                  "text-purple-600": solution.color === "purple",
-                })}
-              />
-              <h3 className="mb-4 text-lg font-semibold">{solution.title}</h3>
-              <ul className="space-y-2">
-                {solution.solutions.map((item, index) => (
-                  <li key={index} className="flex gap-2 items-center text-gray-600">
-                    <Check className="w-4 h-4 text-green-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </motion.div>
-      )}
     </div>
   );
 };
