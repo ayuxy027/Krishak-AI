@@ -68,10 +68,10 @@ export const getAIResponse = async (userInput: string): Promise<string> => {
       },
     ],
     generationConfig: {
-      temperature: 0.75, // Balanced between creativity and accuracy
+      temperature: 0.7, // Slightly reduced for more consistent translations
       topK: 40,
       topP: 0.9,
-      maxOutputTokens: 4096, // Increased for richer responses
+      maxOutputTokens: 4096,
       stopSequences: ["Human:", "Assistant:"],
     },
     safetySettings: [
@@ -98,6 +98,7 @@ export const getAIResponse = async (userInput: string): Promise<string> => {
     const response = await axios.post<GeminiResponse>(`${API_URL}?key=${API_KEY}`, requestData, {
       headers: {
         "Content-Type": "application/json",
+        "Accept-Language": "en,hi,mr,te,ta,kn,gu,bn,pa,ml", // Support for major Indian languages
       },
     })
 
@@ -105,7 +106,12 @@ export const getAIResponse = async (userInput: string): Promise<string> => {
       throw new Error("Invalid response format from Gemini API")
     }
 
-    return response.data.candidates[0].content.parts[0].text
+    const aiResponse = response.data.candidates[0].content.parts[0].text
+
+    // Post-process the response to ensure proper formatting
+    const processedResponse = postProcessResponse(aiResponse)
+    return processedResponse
+
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Kisan-AI API Error:", {
@@ -117,6 +123,16 @@ export const getAIResponse = async (userInput: string): Promise<string> => {
     console.error("Error fetching response from Kisan-AI API:", error)
     throw error
   }
+}
+
+function postProcessResponse(response: string): string {
+  // Ensure markdown formatting is preserved
+  // Replace currency symbols appropriately
+  // Maintain proper line breaks and spacing
+  return response
+    .replace(/\$(\d+)/g, '₹$1') // Convert USD to INR symbol
+    .replace(/(\d+),(\d{3})/g, '$1,$2') // Maintain number formatting
+    .trim()
 }
 
 export default {
