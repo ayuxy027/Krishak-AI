@@ -18,6 +18,7 @@ const generateChatbotPrompt = ({ userInput }: ModernFarmAIChatbot): string => {
   - Use storytelling techniques when appropriate
   - Address the user's concerns directly
   - Be encouraging and supportive
+  - Keep response medium length and with clarity
 
   **Content Structure:**
   1. 👋 Opening
