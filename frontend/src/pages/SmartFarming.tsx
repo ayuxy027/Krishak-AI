@@ -39,7 +39,7 @@ const SmartFarming: React.FC = () => {
   const [farmSize, setFarmSize] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
   const [analysisData, setAnalysisData] = useState<ModernFarmingResponse | null>(null)
-  const [showSystemInfo, setShowSystemInfo] = useState<boolean>(false)
+  const [showSystemInfo, setShowSystemInfo] = useState<boolean>(true)
   const [customFarmingType, setCustomFarmingType] = useState<string>("")
 
   useEffect(() => {
@@ -129,33 +129,32 @@ const SmartFarming: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
                   <Activity className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-gray-600">Analysis Engine</span>
+                  <span className="text-sm text-gray-600">Analysis Metrics</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="text-sm text-green-600">Active</span>
                 </div>
               </div>
-
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
                   <Database className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-gray-600">Tech Database</span>
+                  <span className="text-sm text-gray-600">Database</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm text-green-600">Updated</span>
+                  <span className="text-sm text-green-600">Connected</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
                   <Cpu className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-gray-600">AI Model</span>
+                  <span className="text-sm text-gray-600">ML Model</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm text-green-600">Online</span>
+                  <span className="text-sm text-green-600">Active</span>
                 </div>
               </div>
             </div>
