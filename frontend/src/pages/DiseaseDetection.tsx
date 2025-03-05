@@ -1,256 +1,87 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Microscope, Leaf, Shield, Upload, RefreshCcw, Check, Cpu
 } from 'lucide-react';
 import clsx from 'clsx';
-
-interface EnvironmentalFactors {
-  humidity: string;
-  temperature: string;
-  soilCondition: string;
-  soilPH: string;
-  sunlight: string;
-}
-
-interface DiseaseDetectionResult {
-  disease: string;
-  scientificName: string;
-  confidence: number;
-  severity: 'low' | 'medium' | 'high';
-  preventiveMeasures: string[];
-  treatment: string;
-  detectedAt: string;
-  affectedArea: string;
-  spreadRisk: 'low' | 'moderate' | 'high';
-  environmentalFactors: EnvironmentalFactors;
-  recommendedActions: string[];
-  timeToTreat: string;
-  estimatedRecovery: string;
-  potentialYieldImpact: string;
-}
+import { analyzePlantImage, DiseaseAnalysisResult } from '../ai/diseaseDetectionService';
+import { DiseasePromptConfig } from '../ai/diseasePrompt';
 
 interface DiseaseDetectionProps {
   t: (key: string) => string;
-  onAnalysisComplete?: (result: DiseaseDetectionResult) => void;
+  onAnalysisComplete?: (result: DiseaseAnalysisResult) => void;
   maxImageSize?: number;
+  cropType?: string;
+  severityLevel?: 'mild' | 'medium' | 'severe';
 }
 
 const DEFAULT_MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 
-const possibleDiseases: DiseaseDetectionResult[] = [
-  {
-    disease: "Leaf Rust",
-    scientificName: "Puccinia triticina",
-    confidence: 94.7,
-    severity: "medium",
-    preventiveMeasures: [
-      "Use resistant cultivars",
-      "Maintain proper plant spacing (15-20cm)",
-      "Monitor humidity levels daily",
-      "Apply preventive fungicides bi-weekly",
-      "Implement crop rotation strategy"
-    ],
-    treatment: "Apply systemic fungicide (propiconazole 25% EC @ 0.1%)",
-    detectedAt: new Date().toISOString(),
-    affectedArea: "23% of leaf surface",
-    spreadRisk: "high",
-    environmentalFactors: {
-      humidity: "75% (Above optimal)",
-      temperature: "22°C (Favorable for spread)",
-      soilCondition: "Slightly acidic",
-      soilPH: "6.2",
-      sunlight: "Partial shade"
-    },
-    recommendedActions: [
-      "Immediate fungicide application",
-      "Increase plant spacing",
-      "Improve air circulation",
-      "Monitor neighboring plants"
-    ],
-    timeToTreat: "Within 48 hours",
-    estimatedRecovery: "2-3 weeks with treatment",
-    potentialYieldImpact: "15-20% reduction if untreated"
-  },
-  {
-    disease: "Powdery Mildew",
-    scientificName: "Blumeria graminis",
-    confidence: 88.3,
-    severity: "low",
-    preventiveMeasures: [
-      "Improve air circulation",
-      "Reduce nitrogen fertilization",
-      "Morning irrigation only",
-      "Weekly monitoring",
-      "Remove infected plant debris"
-    ],
-    treatment: "Apply sulfur-based fungicide or neem oil solution (5ml/L)",
-    detectedAt: new Date().toISOString(),
-    affectedArea: "12% of leaf surface",
-    spreadRisk: "moderate",
-    environmentalFactors: {
-      humidity: "65% (Moderate)",
-      temperature: "20°C (Within control range)",
-      soilCondition: "Well-balanced",
-      soilPH: "6.8",
-      sunlight: "Full sun"
-    },
-    recommendedActions: [
-      "Apply organic fungicide",
-      "Adjust watering schedule",
-      "Prune affected areas",
-      "Monitor humidity levels"
-    ],
-    timeToTreat: "Within 5 days",
-    estimatedRecovery: "1-2 weeks with treatment",
-    potentialYieldImpact: "5-10% reduction if untreated"
-  },
-  {
-    disease: "Bacterial Blight",
-    scientificName: "Xanthomonas oryzae",
-    confidence: 91.5,
-    severity: "high",
-    preventiveMeasures: [
-      "Use certified disease-free seeds",
-      "Hot water seed treatment",
-      "Field sanitation",
-      "Balanced fertilization",
-      "Proper drainage"
-    ],
-    treatment: "Apply copper-based bactericide (2g/L) + streptocycline (0.3g/L)",
-    detectedAt: new Date().toISOString(),
-    affectedArea: "35% of leaf surface",
-    spreadRisk: "high",
-    environmentalFactors: {
-      humidity: "85% (High risk)",
-      temperature: "28°C (Optimal for disease)",
-      soilCondition: "Waterlogged",
-      soilPH: "7.2",
-      sunlight: "Intermittent"
-    },
-    recommendedActions: [
-      "Immediate bactericide application",
-      "Improve drainage",
-      "Remove severely infected plants",
-      "Adjust irrigation practices"
-    ],
-    timeToTreat: "Within 24 hours",
-    estimatedRecovery: "3-4 weeks with treatment",
-    potentialYieldImpact: "30-40% reduction if untreated"
-  }
-];
-
 const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
   t,
   onAnalysisComplete,
-  maxImageSize = DEFAULT_MAX_IMAGE_SIZE
+  maxImageSize = DEFAULT_MAX_IMAGE_SIZE,
+  cropType,
+  severityLevel
 }) => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
   const [isResultsVisible, setIsResultsVisible] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [analysisResult, setAnalysisResult] = useState<DiseaseDetectionResult | null>(null);
-  const [systemStatus, setSystemStatus] = useState({
-    modelLoaded: false,
-    apiConnected: false,
-    processingReady: false
+  const [analysisResult, setAnalysisResult] = useState<DiseaseAnalysisResult | null>(null);
+  const [systemStatus, _setSystemStatus] = useState({
+    modelLoaded: true,
+    apiConnected: true,
+    processingReady: true
   });
-  const [_errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [_weatherConditions, setWeatherConditions] = useState({
-    temperature: '24°C',
-    humidity: '65%',
-    windSpeed: '8 km/h'
-  });
-
-  useEffect(() => {
-    console.log('Initializing Disease Detection component');
-    const loadSystem = async () => {
-      try {
-        await simulateSystemLoad();
-        console.log('System initialization complete');
-      } catch (error) {
-        console.error('System initialization failed:', error);
-      }
-    };
-
-    loadSystem();
-  }, [t]);
-
-  const simulateSystemLoad = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSystemStatus(prev => ({ ...prev, modelLoaded: true }));
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setSystemStatus(prev => ({ ...prev, apiConnected: true }));
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setSystemStatus(prev => ({ ...prev, processingReady: true }));
-  };
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const processFile = async (file: File) => {
     try {
-      console.log('Processing file:', { name: file.name, size: file.size });
+      setErrorMessage(null);
+      setIsAnalyzing(true);
+      setIsResultsVisible(false);
+      setAnalysisProgress(0);
+
       const reader = new FileReader();
+      reader.onload = async () => {
+        const imageData = reader.result as string;
+        setImage(imageData);
 
-      reader.onload = () => {
-        setImage(reader.result as string);
-        analyzeImage(file);
-      };
+        try {
+          // Start progress animation
+          const progressInterval = setInterval(() => {
+            setAnalysisProgress(prev => prev < 90 ? prev + 5 : prev);
+          }, 500);
 
-      reader.onerror = (error) => {
-        console.error('File reading failed:', error);
+          // Configure analysis parameters
+          const config: DiseasePromptConfig = {
+            cropType,
+            severityLevel
+          };
+
+          // Perform analysis
+          const result = await analyzePlantImage(imageData, config);
+
+          // Update UI with results
+          clearInterval(progressInterval);
+          setAnalysisProgress(100);
+          setAnalysisResult(result);
+          setIsResultsVisible(true);
+          onAnalysisComplete?.(result);
+        } catch (error) {
+          setErrorMessage(error instanceof Error ? error.message : 'Analysis failed');
+        } finally {
+          setIsAnalyzing(false);
+        }
       };
 
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('File processing failed:', error);
-    }
-  };
-
-  const simulateProgress = () => {
-    let progress = 0;
-    return setInterval(() => {
-      progress += 5;
-      if (progress <= 90) {
-        setAnalysisProgress(progress);
-      }
-    }, 500);
-  };
-
-  const analyzeImage = async (_file: File) => {
-    console.log('Starting analysis');
-    setIsAnalyzing(true);
-    setIsResultsVisible(false);
-    setAnalysisProgress(0);
-    setErrorMessage(null);
-
-    const progressInterval = simulateProgress();
-
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 5000));
-
-      // Simulate weather data fetch
-      setWeatherConditions({
-        temperature: `${20 + Math.random() * 10}°C`,
-        humidity: `${50 + Math.random() * 30}%`,
-        windSpeed: `${5 + Math.random() * 10} km/h`
-      });
-
-      clearInterval(progressInterval);
-      setAnalysisProgress(100);
-
-      const randomResult = possibleDiseases[Math.floor(Math.random() * possibleDiseases.length)];
-      setAnalysisResult(randomResult);
-      setIsResultsVisible(true);
-
-      onAnalysisComplete?.(randomResult);
-      console.log('Analysis completed', randomResult);
-    } catch (error) {
-      console.error('Analysis failed:', error);
-      setErrorMessage('Analysis failed. Please try again.');
-      clearInterval(progressInterval);
-    } finally {
+      setErrorMessage('File processing failed');
       setIsAnalyzing(false);
     }
   };
@@ -283,38 +114,32 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
     {
       title: t('diseaseDetection.chemical'),
       icon: Microscope,
-      solutions: [
-        'Apply balanced NPK fertilizer',
-        'Use iron supplements',
-        'Fungicide treatment if needed'
-      ],
+      solutions: analysisResult?.organicTreatments || ['Solution 1', 'Solution 2', 'Solution 3'],
       color: 'blue',
     },
     {
       title: t('diseaseDetection.organic'),
       icon: Leaf,
-      solutions: [
-        'Organic compost application',
-        'Natural grass clippings',
-        'Seaweed solution spray'
-      ],
+      solutions: analysisResult?.ipmStrategies || ['Solution 1', 'Solution 2', 'Solution 3'],
       color: 'green',
     },
     {
       title: t('diseaseDetection.preventive'),
       icon: Shield,
-      solutions: [
-        'Proper mowing height',
-        'Adequate drainage',
-        'Regular aeration'
-      ],
+      solutions: analysisResult?.preventionPlan || ['Solution 1', 'Solution 2', 'Solution 3'],
       color: 'purple',
     },
   ];
 
+  const getStatusColor = (confidence: number): string => {
+    if (confidence >= 0.8) return 'green';
+    if (confidence >= 0.6) return 'yellow';
+    return 'red';
+  };
+
   return (
     <div className="container px-4 py-8 mx-auto max-w-7xl">
-      {/* Dashboard Header - Made Responsive */}
+      {/* Dashboard Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl lg:text-4xl">
           Plant Disease Detection Dashboard
@@ -324,7 +149,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
         </p>
       </div>
 
-      {/* System Status Panel - Made Responsive */}
+      {/* System Status Panel */}
       <div className="p-4 mb-8 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
         <div className="flex flex-col gap-4 justify-between items-start mb-6 md:flex-row md:items-center">
           <div className="flex gap-3 items-center">
@@ -370,7 +195,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
         </div>
       </div>
 
-      {/* Upload Section - Enhanced Responsive Design */}
+      {/* Upload Section */}
       <div className="mb-8">
         <div
           {...getRootProps()}
@@ -403,7 +228,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
         </div>
       </div>
 
-      {/* Analysis Progress - Sophisticated */}
+      {/* Analysis Progress */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
@@ -451,7 +276,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Results Section - Enhanced Responsive Grid */}
+      {/* Results Section */}
       <AnimatePresence>
         {isResultsVisible && analysisResult && (
           <motion.div
@@ -460,7 +285,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6 md:space-y-8"
           >
-            {/* Primary Results Card - Responsive Layout */}
+            {/* Primary Results Card */}
             <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 md:gap-8">
                 <div>
@@ -469,15 +294,16 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                     <tbody>
                       <tr className="border-b border-gray-100">
                         <td className="py-3 text-gray-600">Disease</td>
-                        <td className="py-3 font-medium text-right text-gray-900">{analysisResult.disease}</td>
+                        <td className="py-3 font-medium text-right text-gray-900">{analysisResult.diseaseName}</td>
                       </tr>
                       <tr className="border-b border-gray-100">
-                        <td className="py-3 text-gray-600">Scientific Name</td>
-                        <td className="py-3 font-medium text-right text-gray-900">{analysisResult.scientificName}</td>
+                        <td className="py-3 text-gray-600">Name of Crop</td>
+                        <td className="py-3 font-medium text-right text-gray-900">{analysisResult.cropName}</td>
                       </tr>
                       <tr className="border-b border-gray-100">
                         <td className="py-3 text-gray-600">Confidence</td>
-                        <td className="py-3 font-medium text-right text-primary-600">{analysisResult.confidence}%</td>
+                        <td className="py-3 font-medium text-right text-primary-600">
+                          {(analysisResult.confidenceLevel * 100).toFixed(2)}%</td>
                       </tr>
                       <tr>
                         <td className="py-3 text-gray-600">Severity</td>
@@ -485,12 +311,12 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                           <span className={clsx(
                             "px-3 py-1 text-sm font-medium rounded-full",
                             {
-                              "bg-red-100 text-red-700": analysisResult.severity === "high",
-                              "bg-yellow-100 text-yellow-700": analysisResult.severity === "medium",
-                              "bg-green-100 text-green-700": analysisResult.severity === "low",
+                              "bg-red-100 text-red-700": analysisResult.severityLevel === "severe",
+                              "bg-yellow-100 text-yellow-700": analysisResult.severityLevel === "medium",
+                              "bg-green-100 text-green-700": analysisResult.severityLevel === "mild",
                             }
                           )}>
-                            {analysisResult.severity.toUpperCase()}
+                            {analysisResult.severityLevel.toUpperCase()}
                           </span>
                         </td>
                       </tr>
@@ -506,17 +332,12 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                       alt="Analyzed crop"
                       className="w-full h-full rounded-lg shadow-lg"
                     />
-                    <div className="absolute right-0 bottom-0 left-0 p-4 bg-gradient-to-t to-transparent rounded-b-lg from-black/70">
-                      <p className="text-sm font-medium text-white">
-                        Affected Area: {analysisResult.affectedArea}
-                      </p>
-                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Environmental Factors - Responsive Table */}
+            {/* Environmental Factors */}
             <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
               <h3 className="mb-4 text-lg font-semibold text-gray-900 md:mb-6 md:text-xl">
                 Environmental Analysis
@@ -532,14 +353,14 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.entries(analysisResult.environmentalFactors).map(([factor, value]) => (
-                        <tr key={factor} className="border-b border-gray-100">
+                      {analysisResult.environmentalFactors.map((factor, index) => (
+                        <tr key={index} className="border-b border-gray-100">
                           <td className="py-3 text-sm text-gray-900 capitalize">
-                            {factor.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                            {factor}
                           </td>
-                          <td className="py-3 text-sm font-medium text-gray-900">{value}</td>
+                          <td className="py-3 text-sm font-medium text-gray-900">N/A</td>
                           <td className="py-3">
-                            <span className="px-3 py-1 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-full">
+                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(analysisResult.confidenceLevel)}`}>
                               Monitoring
                             </span>
                           </td>
@@ -551,7 +372,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
               </div>
             </div>
 
-            {/* Treatment Timeline - Responsive Stack */}
+            {/* Treatment Timeline */}
             <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
               <h3 className="mb-4 text-lg font-semibold text-gray-900 md:mb-6 md:text-xl">
                 Treatment Timeline
@@ -567,12 +388,12 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                 </div>
                 <div className="flex-1 p-4 text-center">
                   <p className="mb-2 text-sm text-gray-600">Yield Impact</p>
-                  <p className="text-lg font-semibold text-red-600">{analysisResult.potentialYieldImpact}</p>
+                  <p className="text-lg font-semibold text-red-600">{analysisResult.yieldImpact}</p>
                 </div>
               </div>
             </div>
 
-            {/* Solutions Grid - Responsive Layout */}
+            {/* Solutions Grid */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-6">
               {solutions.map((solution) => (
                 <div
@@ -610,7 +431,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
               ))}
             </div>
 
-            {/* Real-time Updates Section - New Addition */}
+            {/* Real-time Updates Section */}
             <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 md:text-xl">Real-time Monitoring</h3>
@@ -621,26 +442,28 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600">Disease Spread Risk</p>
+                  <p className="text-sm text-gray-600">Spread Risk</p>
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-xl font-semibold text-gray-900">{analysisResult.spreadRisk}</span>
+                    <span className="text-xl font-semibold text-gray-900">N/A</span>
                     <motion.div
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 2 }}
-                      className={clsx("w-3 h-3 rounded-full", {
-                        "bg-red-500": analysisResult.spreadRisk === "high",
-                        "bg-yellow-500": analysisResult.spreadRisk === "moderate",
-                        "bg-green-500": analysisResult.spreadRisk === "low",
-                      })}
+                      className="w-3 h-3 bg-gray-500 rounded-full"
                     />
                   </div>
                 </div>
-                {/* Add more real-time monitoring widgets as needed */}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Error Handling */}
+      {errorMessage && (
+        <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-lg">
+          {errorMessage}
+        </div>
+      )}
     </div>
   );
 };

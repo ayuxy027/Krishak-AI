@@ -1,47 +1,54 @@
-export interface DiseasePromptInput {
-  imageBase64: string;
+export interface DiseasePromptConfig {
   cropType?: string;
-  additionalContext?: string;
-  environment?: string;
+  severityLevel?: 'mild' | 'medium' | 'severe';
 }
 
-export const generateDiseasePrompt = ({ imageBase64, cropType, additionalContext, environment }: DiseasePromptInput): string => {
-  console.log('Generating disease detection prompt', { 
-    cropType, 
-    hasImage: !!imageBase64,
-    environment,
-    timestamp: new Date().toISOString()
-  });
-  
-  return `You are an expert agricultural disease detection system analyzing a plant image.
-  ${cropType ? `The image is of a ${cropType} plant.` : 'The image is of a grass plant.'}
-  ${additionalContext ? `Additional context: ${additionalContext}` : ''}
-  ${environment ? `Environment: ${environment}` : ''}
+export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string => {
+  return `
+    As an expert agricultural pathologist, analyze this plant image and provide a response in the following JSON format.
+    Ensure the response is pure valid JSON with no chances of trailing commas in response and all strings are properly escaped.
+    Ensure the response is in JSON format and not in markdown format.
+    Required JSON structure:
+    {
+      "diseaseName": "string",
+      "cropName": "string",
+      "timeToTreat": "string",
+      "estimatedRecovery": "string",
+      "yieldImpact": "string",
+      "severityLevel": "mild|medium|severe",
+      "symptomDescription": "string",
+      "environmentalFactors": ["string"],
+      "organicTreatments": ["string"],
+      "ipmStrategies": ["string"],
+      "preventionPlan": ["string"],
+      "confidenceLevel": number,
+      "diagnosisSummary": "string"
+    }
 
-  Analyze the image and provide:
-  1. The specific disease name if detected
-  2. Confidence level (as a percentage between 80-100)
-  3. Severity assessment (low, medium, or high)
-  4. Detailed treatment recommendations, including both immediate actions and preventive measures
+    Analysis requirements:
+    1. Identify disease(s) with crop name
+    2. Describe symptoms with technical terms
+    3. List environmental contributing factors
+    4. Provide organic treatment protocols
+    5. Recommend integrated pest management strategies
+    6. Outline prevention measures for future crops
 
-  Return your analysis as a valid JSON object with these exact keys:
-  {
-    "disease": "specific disease name",
-    "confidence": number (80-100),
-    "severity": "low|medium|high",
-    "treatment": "detailed treatment recommendations",
-    "preventiveMeasures": ["measure1", "measure2", "measure3"]
-  }
+    Important:
+    - Ensure all JSON values are properly formatted
+    - Use double quotes for all strings
+    - Do not include any markdown formatting
+    - Do not include any explanatory text outside the JSON
+    - Ensure all arrays are properly closed
+    - Do not include trailing commas
 
-  Guidelines:
-  - Be specific with disease names (use scientific names where applicable)
-  - Provide actionable treatment steps
-  - Consider both organic and chemical solutions
-  - Include preventive measures
-  - Maintain high confidence threshold (80-100%)
-  - Consider environmental impact of treatments
-  - Suggest cost-effective solutions
-  `.trim();
+    For waste queries or spam queries:
+    - Return a JSON with not applicable in all fields and confidence level 0
+    - Add a message to the response to say that the query is not applicable
+    - Do not include any other text in the response
+    - Do not include any other fields in the JSON
+    - Prompt user to ask a valid question 
+    - Do this when you see a query that is not related to agriculture or plant diseases
+    ${config?.cropType ? `Crop Type: ${config.cropType}` : ''}
+    ${config?.severityLevel ? `Severity Level: ${config.severityLevel}` : ''}
+  `.replace(/\s+/g, ' ').trim();
 };
-
-export default generateDiseasePrompt; 
