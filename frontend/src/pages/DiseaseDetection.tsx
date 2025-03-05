@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Microscope, Leaf, Shield, Upload, RefreshCcw, Check, Cpu
+  Microscope, Leaf, Shield, Upload, RefreshCcw, Check
 } from 'lucide-react';
 import clsx from 'clsx';
 import { analyzePlantImage, DiseaseAnalysisResult } from '../ai/diseaseDetectionService';
@@ -18,6 +18,39 @@ interface DiseaseDetectionProps {
 
 const DEFAULT_MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.5 }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariant = {
+  initial: { opacity: 0, x: -20 },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.2 }
+  }
+};
+
+const ambientPulse = {
+  scale: [1, 1.01, 1],
+  transition: {
+    duration: 3,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+};
+
 const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
   t,
   onAnalysisComplete,
@@ -27,7 +60,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
 }) => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isDragActive, setIsDragActive] = useState(false);
+  const [isDragActive, _setIsDragActive] = useState(false);
   const [isResultsVisible, setIsResultsVisible] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<DiseaseAnalysisResult | null>(null);
@@ -37,6 +70,13 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
     processingReady: true
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [processingSteps, setProcessingSteps] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+
+  const addProcessingStep = (step: string) => {
+    console.log(`Processing: ${step}`);
+    setProcessingSteps(prev => [...prev, step]);
+  };
 
   const processFile = async (file: File) => {
     try {
@@ -44,6 +84,8 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
       setIsAnalyzing(true);
       setIsResultsVisible(false);
       setAnalysisProgress(0);
+      setProcessingSteps([]);
+      setCurrentStep(0);
 
       const reader = new FileReader();
       reader.onload = async () => {
@@ -51,10 +93,41 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
         setImage(imageData);
 
         try {
-          // Start progress animation
-          const progressInterval = setInterval(() => {
-            setAnalysisProgress(prev => prev < 90 ? prev + 5 : prev);
-          }, 500);
+          // Simulated processing steps with realistic timing
+          const steps = [
+            { message: "Initializing image processing pipeline...", duration: 1000 },
+            { message: "Performing initial image analysis...", duration: 1500 },
+            { message: "Detecting plant features...", duration: 2000 },
+            { message: "Analyzing disease patterns...", duration: 2500 },
+            { message: "Running AI model predictions...", duration: 2000 },
+            { message: "Generating treatment recommendations...", duration: 1500 },
+            { message: "Finalizing analysis report...", duration: 1000 }
+          ];
+
+          let progress = 0;
+          const progressIncrement = 100 / steps.length;
+
+          for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            setCurrentStep(i);
+            addProcessingStep(step.message);
+
+            // Increment progress smoothly
+            const startProgress = progress;
+            const endProgress = progress + progressIncrement;
+            const duration = step.duration;
+            const startTime = Date.now();
+
+            while (progress < endProgress) {
+              const elapsed = Date.now() - startTime;
+              const percentage = Math.min(elapsed / duration, 1);
+              progress = startProgress + (progressIncrement * percentage);
+              setAnalysisProgress(Math.min(progress, 99)); // Keep at 99% until complete
+              await new Promise(r => setTimeout(r, 50)); // Smooth updates
+            }
+
+            await new Promise(r => setTimeout(r, 200)); // Pause between steps
+          }
 
           // Configure analysis parameters
           const config: DiseasePromptConfig = {
@@ -62,15 +135,18 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
             severityLevel
           };
 
-          // Perform analysis
+          // Perform actual analysis
           const result = await analyzePlantImage(imageData, config);
 
-          // Update UI with results
-          clearInterval(progressInterval);
+          // Show 100% only when we have results
           setAnalysisProgress(100);
+          await new Promise(r => setTimeout(r, 500)); // Dramatic pause
+
+          addProcessingStep("Analysis complete! Displaying results...");
           setAnalysisResult(result);
           setIsResultsVisible(true);
           onAnalysisComplete?.(result);
+
         } catch (error) {
           setErrorMessage(error instanceof Error ? error.message : 'Analysis failed');
         } finally {
@@ -105,9 +181,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
         setErrorMessage(null);
         processFile(acceptedFiles[0]);
       }
-    },
-    onDragEnter: () => setIsDragActive(true),
-    onDragLeave: () => setIsDragActive(false)
+    }
   });
 
   const solutions = [
@@ -138,39 +212,52 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
   };
 
   return (
-    <div className="container px-4 py-8 mx-auto max-w-7xl">
+    <motion.div
+      initial="initial"
+      animate="animate"
+      className="container px-4 py-8 mx-auto max-w-7xl"
+    >
       {/* Dashboard Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl lg:text-4xl">
+      <motion.div
+        variants={fadeInUp}
+        className="mb-8"
+      >
+        <motion.h1
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl lg:text-4xl"
+        >
           Plant Disease Detection Dashboard
-        </h1>
-        <p className="mt-2 text-sm text-gray-600 md:text-base">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-2 text-sm text-gray-600 md:text-base"
+        >
           Upload and analyze plant images for disease detection
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
 
       {/* System Status Panel */}
-      <div className="p-4 mb-8 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
-        <div className="flex flex-col gap-4 justify-between items-start mb-6 md:flex-row md:items-center">
-          <div className="flex gap-3 items-center">
-            <Cpu className="w-5 h-5 md:w-6 md:h-6 text-primary-600" />
-            <h3 className="text-lg font-semibold text-gray-800 md:text-xl">System Diagnostics</h3>
-          </div>
-          <div className="px-4 py-2 bg-gray-50 rounded-full">
-            {Object.values(systemStatus).every(status => status) ? (
-              <span className="flex gap-2 items-center text-sm font-medium text-green-600">
-                <Check className="w-4 h-4" /> System Ready
-              </span>
-            ) : (
-              <span className="flex gap-2 items-center text-sm font-medium text-amber-600">
-                <RefreshCcw className="w-4 h-4 animate-spin" /> Initializing Systems
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
-          {Object.entries(systemStatus).map(([key, status]) => (
-            <div key={key} className="p-4 bg-gray-50 rounded-lg">
+      <motion.div
+        variants={fadeInUp}
+        className="p-4 mb-8 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6"
+      >
+        <motion.div
+          variants={staggerContainer}
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6"
+        >
+          {Object.entries(systemStatus).map(([key, status], index) => (
+            <motion.div
+              key={key}
+              custom={index}
+              variants={itemVariant}
+              className="p-4 bg-gray-50 rounded-lg transition-shadow hover:shadow-md"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <div className="flex gap-3 items-center">
                 {status ? (
                   <div className="p-2 bg-green-100 rounded-full">
@@ -190,103 +277,154 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Upload Section */}
-      <div className="mb-8">
-        <div
-          {...getRootProps()}
-          className={clsx(
-            "relative p-4 rounded-xl border-dashed transition-all duration-300 md:p-8 border-3",
-            "bg-gradient-to-r from-gray-50 to-white",
-            "transform hover:shadow-lg hover:-translate-y-1",
-            {
-              "border-primary-500 bg-primary-50": isDragActive,
-              "border-gray-300 hover:border-primary-500": !isDragActive,
-            }
-          )}
-        >
-          <input {...getInputProps()} />
-          <div className="flex flex-col items-center">
-            <div className={clsx(
-              "p-4 mb-4 rounded-full transition-all duration-300",
-              isDragActive ? "bg-primary-100" : "bg-gray-100"
-            )}>
-              <Upload className="w-10 h-10 text-primary-600" />
+      <motion.div variants={fadeInUp} className="mb-8">
+        <div {...getRootProps()} className="relative">
+          <motion.div
+            initial={false}
+            whileHover={{ scale: 1.02, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
+            whileTap={{ scale: 0.98 }}
+            animate={isDragActive ? {
+              scale: 1.05,
+              borderColor: "var(--color-primary-500)",
+              backgroundColor: "var(--color-primary-50)"
+            } : {
+              scale: 1,
+              borderColor: "var(--color-gray-300)",
+              backgroundColor: "var(--color-white)"
+            }}
+            className={clsx(
+              "relative p-4 rounded-xl border-dashed transition-all duration-300 md:p-8 border-3",
+              "bg-gradient-to-r from-gray-50 to-white"
+            )}
+          >
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center">
+              <motion.div
+                className={clsx(
+                  "p-4 mb-4 rounded-full transition-all duration-300",
+                  isDragActive ? "bg-primary-100" : "bg-gray-100"
+                )}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Upload className="w-10 h-10 text-primary-600" />
+              </motion.div>
+              <motion.h3
+                className="mb-2 text-xl font-semibold text-gray-900"
+                animate={{ scale: isDragActive ? 1.1 : 1 }}
+              >
+                {t('diseaseDetection.dragDropText')}
+              </motion.h3>
+              <motion.p
+                className="mb-4 text-sm text-gray-600"
+                animate={{ opacity: isDragActive ? 0.7 : 1 }}
+              >
+                {t('diseaseDetection.uploadInstructions')}
+              </motion.p>
+              <motion.button
+                className="px-6 py-2 text-sm font-medium text-white rounded-full bg-primary-600 hover:bg-primary-700"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Select File
+              </motion.button>
             </div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {t('diseaseDetection.dragDropText')}
-            </h3>
-            <p className="mb-4 text-sm text-gray-600">{t('diseaseDetection.uploadInstructions')}</p>
-            <button className="px-6 py-2 text-sm font-medium text-white rounded-full bg-primary-600 hover:bg-primary-700">
-              Select File
-            </button>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Analysis Progress */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="mb-8"
           >
-            <div className="p-6 bg-white rounded-xl border border-gray-200 shadow-lg">
+            <motion.div
+              className="p-6 bg-white rounded-xl border border-gray-200 shadow-lg"
+              animate={ambientPulse}
+            >
               <div className="flex justify-between items-center mb-6">
                 <div className="flex gap-3 items-center">
                   <RefreshCcw className="w-6 h-6 animate-spin text-primary-600" />
                   <h3 className="text-xl font-semibold text-gray-800">Analysis in Progress</h3>
                 </div>
-                <span className="px-4 py-2 text-sm font-medium rounded-full text-primary-600 bg-primary-50">
-                  {analysisProgress}% Complete
-                </span>
+                <motion.span
+                  className="px-4 py-2 text-sm font-medium rounded-full text-primary-600 bg-primary-50"
+                  animate={{ scale: analysisProgress === 100 ? [1, 1.1, 1] : 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {analysisProgress.toFixed(1)}% Complete
+                </motion.span>
               </div>
+
+              {/* Processing Steps Log */}
+              <div className="overflow-y-auto mb-6 max-h-40">
+                <motion.div layout className="space-y-2">
+                  {processingSteps.map((step, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className={clsx(
+                        "flex items-center gap-2 p-2 rounded",
+                        index === currentStep ? "bg-primary-50" : "bg-gray-50"
+                      )}
+                    >
+                      {index === currentStep ? (
+                        <RefreshCcw className="w-4 h-4 animate-spin text-primary-600" />
+                      ) : (
+                        <Check className="w-4 h-4 text-green-600" />
+                      )}
+                      <span className="text-sm text-gray-700">{step}</span>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+
+              {/* Progress Bar */}
               <div className="overflow-hidden relative mb-4 w-full h-3 bg-gray-100 rounded-full">
                 <motion.div
                   className="absolute top-0 left-0 h-full bg-primary-600"
-                  initial={{ width: "0%" }}
-                  animate={{ width: `${analysisProgress}%` }}
-                  transition={{ duration: 0.5 }}
+                  style={{ width: `${analysisProgress}%` }}
+                  animate={{
+                    background: analysisProgress === 100
+                      ? ['hsl(var(--primary-600))', 'hsl(var(--primary-400))', 'hsl(var(--primary-600))']
+                      : 'hsl(var(--primary-600))'
+                  }}
+                  transition={{ duration: 1, repeat: analysisProgress === 100 ? Infinity : 0 }}
                 />
               </div>
-              <div className="grid grid-cols-4 gap-4">
-                {['Image Processing', 'Disease Analysis', 'Risk Assessment', 'Report Generation'].map((step, index) => (
-                  <div key={step} className="text-center">
-                    <div className={clsx(
-                      "mx-auto mb-2 w-8 h-8 rounded-full flex items-center justify-center",
-                      analysisProgress >= (index + 1) * 25 ? "bg-primary-100" : "bg-gray-100"
-                    )}>
-                      <span className={clsx(
-                        "text-sm font-medium",
-                        analysisProgress >= (index + 1) * 25 ? "text-primary-600" : "text-gray-400"
-                      )}>{index + 1}</span>
-                    </div>
-                    <p className="text-sm text-gray-600">{step}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Results Section */}
+      {/* Results Section - Only show when analysis is 100% complete */}
       <AnimatePresence>
-        {isResultsVisible && analysisResult && (
+        {isResultsVisible && analysisResult && analysisProgress === 100 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="space-y-6 md:space-y-8"
           >
             {/* Primary Results Card */}
-            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+            <motion.div
+              variants={fadeInUp}
+              className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6"
+              whileHover={{ scale: 1.01 }}
+            >
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 md:gap-8">
                 <div>
                   <h3 className="mb-6 text-2xl font-bold text-gray-900">Detection Results</h3>
@@ -335,10 +473,13 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
 
             {/* Environmental Factors */}
-            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+            <motion.div
+              variants={fadeInUp}
+              className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6"
+            >
               <h3 className="mb-4 text-lg font-semibold text-gray-900 md:mb-6 md:text-xl">
                 Environmental Analysis
               </h3>
@@ -370,10 +511,13 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                   </table>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Treatment Timeline */}
-            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
+            <motion.div
+              variants={fadeInUp}
+              className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6"
+            >
               <h3 className="mb-4 text-lg font-semibold text-gray-900 md:mb-6 md:text-xl">
                 Treatment Timeline
               </h3>
@@ -391,16 +535,32 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                   <p className="text-lg font-semibold text-red-600">{analysisResult.yieldImpact}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Solutions Grid */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-6">
-              {solutions.map((solution) => (
-                <div
+            <motion.div
+              variants={staggerContainer}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-6"
+            >
+              {solutions.map((solution, index) => (
+                <motion.div
                   key={solution.title}
-                  className="p-4 md:p-6 bg-white rounded-xl border border-gray-200 shadow-lg 
-                           transition-all duration-300 hover:shadow-xl hover:scale-[1.02]
-                           transform hover:-translate-y-1"
+                  variants={{
+                    initial: { opacity: 0, y: 20 },
+                    animate: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { delay: index * 0.2 }
+                    },
+                    exit: { opacity: 0, y: -20 }
+                  }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+                    transition: { type: "spring", stiffness: 300 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6"
                 >
                   <div className={clsx(
                     "p-3 w-fit rounded-full mb-4",
@@ -427,19 +587,28 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                       </li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* Real-time Updates Section */}
-            <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6">
-              <div className="flex justify-between items-center mb-4">
+            <motion.div
+              variants={fadeInUp}
+              className="p-4 bg-white rounded-xl border border-gray-200 shadow-lg md:p-6"
+            >
+              <motion.div
+                className="flex justify-between items-center mb-4"
+                animate={{
+                  scale: [1, 1.02, 1],
+                  transition: { duration: 2, repeat: Infinity }
+                }}
+              >
                 <h3 className="text-lg font-semibold text-gray-900 md:text-xl">Real-time Monitoring</h3>
                 <span className="flex gap-2 items-center text-green-600">
                   <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
                   Live
                 </span>
-              </div>
+              </motion.div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600">Spread Risk</p>
@@ -453,18 +622,25 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Error Handling */}
-      {errorMessage && (
-        <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-lg">
-          {errorMessage}
-        </div>
-      )}
-    </div>
+      <AnimatePresence>
+        {errorMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="p-4 mb-4 text-red-700 bg-red-100 rounded-lg"
+          >
+            {errorMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
