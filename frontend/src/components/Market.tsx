@@ -51,7 +51,7 @@ const products: Product[] = [
         id: 1,
         name: "Drip Irrigation Kit",
         image: "https://images.unsplash.com/photo-1591154669695-5f2a8d20c089?auto=format&fit=crop&q=80",
-        price: 45000,
+        price: 5000,
         rentalPrice: 800,
         description: "Water-efficient drip irrigation system ideal for Indian climate",
         category: "Irrigation",
@@ -63,7 +63,7 @@ const products: Product[] = [
     },
     {
         id: 2,
-        name: "Desi Seeds Collection",
+        name: "Seeds Packet",
         image: "https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?auto=format&fit=crop&q=80",
         price: 4999,
         rentalPrice: 0,
@@ -72,14 +72,14 @@ const products: Product[] = [
         rating: 4.6,
         available: true,
         stock: 75,
-        discount: 10,
+        discount: 16,
         specifications: ["Indigenous Varieties", "High-yield", "Drought-resistant", "Non-GMO"]
     },
     {
         id: 3,
         name: "Kisan Sprayer Drone",
         image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80",
-        price: 150000,
+        price: 50000,
         rentalPrice: 2500,
         description: "Made in India drone for efficient crop spraying and monitoring",
         category: "Technology",
@@ -100,6 +100,7 @@ const products: Product[] = [
         rating: 4.4,
         available: true,
         stock: 30,
+        discount: 10,
         specifications: ["pH Testing", "NPK Analysis", "Mobile App", "Regional Database"]
     },
     {
@@ -121,17 +122,16 @@ const products: Product[] = [
         name: "Vermicompost Bundle",
         image: "https://images.unsplash.com/photo-1515150144380-bca9f1650ed9?auto=format&fit=crop&q=80",
         price: 3499,
-        rentalPrice: 0,
+        rentalPrice: 100,
         description: "Premium organic vermicompost for all Indian crops",
         category: "Chemicals",
         rating: 4.5,
         available: true,
         stock: 100,
-        discount: 20,
+        discount: 27,
         specifications: ["100% Organic", "Rich in Nutrients", "Local Earthworms", "No Chemicals"]
     }
-];
-
+]
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
     const handlePayment = async () => {
@@ -208,7 +208,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 }
             }}
             whileHover={{ translateY: -4 }}
-            className="flex overflow-hidden relative flex-col p-4 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 sm:p-6 md:p-8 hover:shadow-xl group"
+            className="flex overflow-hidden relative flex-col p-6 bg-white rounded-2xl border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-xl"
         >
             <div className="flex relative z-10 flex-col h-full">
                 {/* Category & Rating */}
@@ -270,38 +270,29 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 )}
 
                 {/* Updated Pricing Display */}
-                <div className="mt-auto">
-                    <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
-                        <span className="text-sm font-medium text-gray-500">Price</span>
+                <div className="mt-auto space-y-4">
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                        <span className="text-sm font-medium text-gray-600">Price</span>
                         <div className="text-right">
                             <span className="text-2xl font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
                         </div>
                     </div>
                     {product.rentalPrice > 0 && (
-                        <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
-                            <span className="text-sm font-medium text-gray-500">Daily Rental</span>
-                            <span className="text-2xl font-bold text-primary-600">₹{product.rentalPrice}</span>
+                        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                            <span className="text-sm font-medium text-gray-600">Rental Price</span>
+                            <span className="text-xl font-semibold text-green-600">₹{product.rentalPrice} per Hour</span>
                         </div>
                     )}
-                </div>
 
-                {/* Responsive Action Buttons */}
-                <div className="flex flex-col gap-2 mt-6 sm:flex-row">
+                    {/* Updated Action Button */}
                     <motion.button
                         onClick={handlePayment}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="flex gap-2 justify-center items-center px-4 py-3 w-full font-medium text-white rounded-xl transition-colors duration-200 sm:w-1/2 bg-primary-600 hover:bg-primary-700"
+                        className="flex gap-2 justify-center items-center px-6 py-3 w-full font-medium text-white bg-green-600 rounded-xl transition-colors duration-200 hover:bg-green-700"
                     >
-                        <ShoppingCart className="w-4 h-4" />
+                        <ShoppingCart className="w-5 h-5" />
                         Buy Now
-                    </motion.button>
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="px-4 py-3 w-full font-medium text-white bg-gray-900 rounded-xl transition-colors duration-200 sm:w-1/2 hover:bg-gray-800"
-                    >
-                        View Details
                     </motion.button>
                 </div>
             </div>
@@ -390,30 +381,30 @@ const Market = () => {
                     </p>
                 </motion.div>
 
-                {/* Responsive Filters */}
+                {/* Updated Filters Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-8 space-y-4 sm:mb-12 sm:space-y-6"
+                    className="mb-12 space-y-6"
                 >
-                    {/* Search */}
-                    <div className="px-4 mx-auto w-full max-w-2xl">
+                    {/* Search Bar */}
+                    <div className="mx-auto w-full max-w-2xl">
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 w-5 h-5 text-gray-400 transform -translate-y-1/2" />
                             <input
                                 type="text"
                                 placeholder="Search products..."
-                                className="py-3 pr-4 pl-12 w-full text-base rounded-xl border border-gray-200 sm:py-4 sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-lg"
+                                className="py-4 pr-4 pl-12 w-full text-base rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                     </div>
 
-                    {/* Responsive Category & Sort Filters */}
-                    <div className="flex flex-col gap-4 justify-center items-center sm:flex-row">
+                    {/* Filter Controls */}
+                    <div className="flex flex-wrap gap-4 justify-center items-center">
                         <select
-                            className="px-6 py-3 text-gray-600 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="px-6 py-3 text-gray-700 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
                         >
@@ -423,7 +414,7 @@ const Market = () => {
                         </select>
 
                         <select
-                            className="px-6 py-3 text-gray-600 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="px-6 py-3 text-gray-700 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
                             value={sort}
                             onChange={(e) => setSort(e.target.value as any)}
                         >
@@ -432,17 +423,16 @@ const Market = () => {
                             <option value="newest">Newest First</option>
                         </select>
 
-                        {/* Filter Buttons */}
                         <div className="flex gap-3">
                             {["all", "buy", "rent"].map((type) => (
                                 <button
                                     key={type}
                                     onClick={() => setFilter(type as "all" | "buy" | "rent")}
                                     className={`
-                                        px-6 py-3 rounded-xl transition-all duration-200
+                                        px-6 py-3 font-medium rounded-xl transition-all duration-200
                                         ${filter === type
-                                            ? "bg-gray-900 text-white"
-                                            : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                            ? "bg-green-600 text-white"
+                                            : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                                         }
                                     `}
                                 >
