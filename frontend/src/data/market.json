@@ -1,6 +1,56 @@
 {
     "cities": [
       {
+        "city": "Ahilyanagar",
+        "markets": [
+          {
+            "name": "Ahilyanagar APMC",
+            "cropPrices": {
+              "Wheat": "₹2,200/quintal",
+              "Rice": "₹3,500/quintal",
+              "Tur Dal": "₹6,000/quintal"
+            },
+            "marketTimings": "6 AM - 6 PM",
+            "tradingDays": "Monday to Saturday"
+          },
+          {
+            "name": "Shirdi Market",
+            "cropPrices": {
+              "Wheat": "₹2,250/quintal",
+              "Rice": "₹3,600/quintal",
+              "Tur Dal": "₹6,100/quintal"
+            },
+            "marketTimings": "7 AM - 5 PM",
+            "tradingDays": "Monday to Friday"
+          }
+        ],
+        "marketStats": {
+          "dailyTradingVolume": "₹2.5 Cr",
+          "activeBuyers": 350,
+          "averagePricePerQuintal": "₹3,200",
+          "monthlyTransactions": 1400,
+          "topCommodity": "Tur Dal"
+        },
+        "priceAlerts": [
+          {
+            "crop": "Wheat",
+            "change": "+2%",
+            "price": "₹2,250/quintal",
+            "time": "1 hour ago",
+            "reason": "Increased demand from local mills"
+          }
+        ],
+        "buyers": [
+          {
+            "name": "Ahilyanagar Agro Pvt Ltd",
+            "type": "Processor",
+            "status": "Active",
+            "volume": "10,000 quintals",
+            "contact": "9012345678"
+          }
+        ]
+      },
+      {
         "city": "Chhatrapati Sambhajinagar",
         "markets": [
           {
@@ -891,56 +941,6 @@
             "status": "Active",
             "volume": "14,000 quintals",
             "contact": "9890123456"
-          }
-        ]
-      },
-      {
-        "city": "Ahilyanagar",
-        "markets": [
-          {
-            "name": "Ahilyanagar APMC",
-            "cropPrices": {
-              "Wheat": "₹2,200/quintal",
-              "Rice": "₹3,500/quintal",
-              "Tur Dal": "₹6,000/quintal"
-            },
-            "marketTimings": "6 AM - 6 PM",
-            "tradingDays": "Monday to Saturday"
-          },
-          {
-            "name": "Shirdi Market",
-            "cropPrices": {
-              "Wheat": "₹2,250/quintal",
-              "Rice": "₹3,600/quintal",
-              "Tur Dal": "₹6,100/quintal"
-            },
-            "marketTimings": "7 AM - 5 PM",
-            "tradingDays": "Monday to Friday"
-          }
-        ],
-        "marketStats": {
-          "dailyTradingVolume": "₹2.5 Cr",
-          "activeBuyers": 350,
-          "averagePricePerQuintal": "₹3,200",
-          "monthlyTransactions": 1400,
-          "topCommodity": "Tur Dal"
-        },
-        "priceAlerts": [
-          {
-            "crop": "Wheat",
-            "change": "+2%",
-            "price": "₹2,250/quintal",
-            "time": "1 hour ago",
-            "reason": "Increased demand from local mills"
-          }
-        ],
-        "buyers": [
-          {
-            "name": "Ahilyanagar Agro Pvt Ltd",
-            "type": "Processor",
-            "status": "Active",
-            "volume": "10,000 quintals",
-            "contact": "9012345678"
           }
         ]
       },
