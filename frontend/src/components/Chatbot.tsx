@@ -435,7 +435,7 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   className={`flex justify-center items-center w-10 h-10 text-base font-bold rounded-full shadow-inner sm:w-12 sm:h-12 sm:text-lg backdrop-blur-sm ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
                     }`}
                 >
-                  MF
+                  AI
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold sm:text-md">Kisan AI</h3>
