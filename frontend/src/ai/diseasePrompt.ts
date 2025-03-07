@@ -6,9 +6,42 @@ export interface DiseasePromptConfig {
 export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string => {
   return `
     As an expert agricultural pathologist, analyze this plant image and provide a response in the following JSON format.
-    Ensure the response is pure valid JSON with no chances of trailing commas in response and all strings are properly escaped.
-    Ensure the response is in JSON format and not in markdown format.
-    Required JSON structure:
+    You can analyze ANY type of plant, including:
+    - All types of crops (cereals, pulses, oilseeds, etc.)
+    - All fruits (tropical, subtropical, temperate)
+    - All vegetables (root, leafy, fruit vegetables)
+    - All types of trees (fruit bearing, timber, ornamental)
+    - All types of flowering plants
+    - All types of indoor and outdoor plants
+    - All commercial and home garden plants
+    - All hydroponic and aquaponic plants
+
+    IMPORTANT VALIDATION RULES:
+    1. For ANY non-plant or non-agricultural images, return:
+    {
+      "diseaseName": "Not Applicable",
+      "cropName": "Invalid Input",
+      "confidenceLevel": 0,
+      "diagnosisSummary": "This appears to be a non-plant image. Please provide a clear image of a plant for analysis.",
+      "timeToTreat": "N/A",
+      "estimatedRecovery": "N/A",
+      "yieldImpact": "N/A",
+      "severityLevel": "N/A"
+    }
+
+    2. For spam, inappropriate, or malicious queries, return:
+    {
+      "diseaseName": "Invalid Query",
+      "cropName": "Not Applicable",
+      "confidenceLevel": 0,
+      "diagnosisSummary": "Unable to process this query. Please provide appropriate plant-related images.",
+      "timeToTreat": "N/A",
+      "estimatedRecovery": "N/A",
+      "yieldImpact": "N/A",
+      "severityLevel": "N/A"
+    }
+
+    3. For valid plant images, provide detailed analysis in this JSON structure:
     {
       "diseaseName": "string",
       "cropName": "string",
@@ -50,38 +83,30 @@ export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string 
       "diagnosisSummary": "string"
     }
 
-    Analysis requirements:
-    1. Identify disease(s) with crop name
-    2. Describe symptoms with technical terms
-    3. Provide detailed environmental analysis including:
-       - Current environmental conditions
-       - Optimal ranges for the crop
-       - Status assessment (optimal/warning/critical)
-    4. Include real-time metrics with:
-       - Disease spread risk assessment
-       - Disease progression tracking
-       - Current environmental conditions
-    5. Provide organic treatment protocols
-    6. Recommend integrated pest management strategies
-    7. Outline prevention measures for future crops
+    Analysis requirements for valid plant images:
+    1. Identify ANY plant disease regardless of plant type
+    2. Provide accurate plant/crop name identification
+    3. Give detailed environmental analysis
+    4. Include real-time metrics with practical values
+    5. Suggest both organic and IPM treatments
+    6. Outline prevention measures
+    7. Maintain high confidence threshold for diagnosis
 
-    Important:
+    Important Guidelines:
     - Ensure all JSON values are properly formatted
     - Use double quotes for all strings
-    - Do not include any markdown formatting
-    - Do not include any explanatory text outside the JSON
-    - Ensure all arrays are properly closed
-    - Do not include trailing commas
-    - Provide realistic values for all environmental and real-time metrics
-    - Use appropriate units for measurements (°C for temperature, % for humidity)
+    - No markdown formatting
+    - No explanatory text outside JSON
+    - No trailing commas
+    - Realistic environmental metrics
+    - Proper units (°C, %, etc.)
+    - Confidence level between 80-100% for valid analyses only
 
-    For waste queries or spam queries:
-    - Return a JSON with not applicable in all fields and confidence level 0
-    - Add a message to the response to say that the query is not applicable
-    - Do not include any other text in the response
-    - Do not include any other fields in the JSON
-    - Prompt user to ask a valid question 
-    - Do this when you see a query that is not related to agriculture or plant diseases
+        Ensure the response is pure valid JSON with no chances of trailing commas in response and all strings are properly escaped.
+    Ensure the response is in JSON format and not in markdown format.
+        Required JSON structure:
+
+
     ${config?.cropType ? `Crop Type: ${config.cropType}` : ''}
     ${config?.severityLevel ? `Severity Level: ${config.severityLevel}` : ''}
   `.replace(/\s+/g, ' ').trim();
