@@ -435,7 +435,8 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                       <tr className="border-b border-gray-100">
                         <td className="py-3 text-gray-600">Confidence</td>
                         <td className="py-3 font-medium text-right text-primary-600">
-                          {(analysisResult.confidenceLevel * 100).toFixed(2)}%</td>
+                          {analysisResult.confidenceLevel.toFixed(2)}%
+                        </td>
                       </tr>
                       <tr>
                         <td className="py-3 text-gray-600">Severity</td>
