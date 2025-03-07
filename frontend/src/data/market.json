@@ -189,6 +189,56 @@
         ]
       },
       {
+        "city": "Aurangabad",
+        "markets": [
+          {
+            "name": "Aurangabad APMC",
+            "cropPrices": {
+              "Wheat": "₹2,561/quintal",
+              "Rice": "₹3,200/quintal",
+              "Tur Dal": "₹6,500/quintal"
+            },
+            "marketTimings": "6 AM - 6 PM",
+            "tradingDays": "Monday to Saturday"
+          },
+          {
+            "name": "Paithan Market",
+            "cropPrices": {
+              "Wheat": "₹2,500/quintal",
+              "Rice": "₹3,150/quintal",
+              "Tur Dal": "₹6,450/quintal"
+            },
+            "marketTimings": "7 AM - 5 PM",
+            "tradingDays": "Monday to Friday"
+          }
+        ],
+        "marketStats": {
+          "dailyTradingVolume": "₹3.0 Cr",
+          "activeBuyers": 400,
+          "averagePricePerQuintal": "₹3,400",
+          "monthlyTransactions": 1600,
+          "topCommodity": "Tur Dal"
+        },
+        "priceAlerts": [
+          {
+            "crop": "Wheat",
+            "change": "+1.5%",
+            "price": "₹2,600/quintal",
+            "time": "2 hours ago",
+            "reason": "Increased demand from local mills"
+          }
+        ],
+        "buyers": [
+          {
+            "name": "Aurangabad Agro Pvt Ltd",
+            "type": "Processor",
+            "status": "Active",
+            "volume": "12,000 quintals",
+            "contact": "9012345678"
+          }
+        ]
+      },
+      {
         "city": "Beed",
         "markets": [
           {
