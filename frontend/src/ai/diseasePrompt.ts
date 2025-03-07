@@ -5,19 +5,19 @@ export interface DiseasePromptConfig {
 
 export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string => {
   return `
-    As an expert agricultural pathologist, analyze this plant image and provide a response in the following JSON format.
-    You can analyze ANY type of plant, including:
-    - All types of crops (cereals, pulses, oilseeds, etc.)
-    - All fruits (tropical, subtropical, temperate)
-    - All vegetables (root, leafy, fruit vegetables)
-    - All types of trees (fruit bearing, timber, ornamental)
-    - All types of flowering plants
-    - All types of indoor and outdoor plants
-    - All commercial and home garden plants
-    - All hydroponic and aquaponic plants
-
-    IMPORTANT VALIDATION RULES:
-    1. For ANY non-plant or non-agricultural images, return:
+    As an expert agricultural pathologist, analyze the provided plant image and return a response strictly in JSON format.
+    
+    **Supported Plant Types:**
+    - Crops (cereals, pulses, oilseeds, etc.)
+    - Fruits (tropical, subtropical, temperate)
+    - Vegetables (root, leafy, fruit vegetables)
+    - Trees (fruit-bearing, timber, ornamental)
+    - Flowering plants, indoor/outdoor plants
+    - Commercial and home garden plants
+    - Hydroponic and aquaponic plants
+    
+    **Validation Rules:**
+    1. **Non-plant or irrelevant images:** Return:
     {
       "diseaseName": "Not Applicable",
       "cropName": "Invalid Input",
@@ -28,8 +28,8 @@ export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string 
       "yieldImpact": "N/A",
       "severityLevel": "N/A"
     }
-
-    2. For spam, inappropriate, or malicious queries, return:
+    
+    2. **Spam, inappropriate, or malicious queries:** Return:
     {
       "diseaseName": "Invalid Query",
       "cropName": "Not Applicable",
@@ -40,8 +40,8 @@ export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string 
       "yieldImpact": "N/A",
       "severityLevel": "N/A"
     }
-
-    3. For valid plant images, provide detailed analysis in this JSON structure:
+    
+    3. **Valid plant images:** Provide analysis in this JSON format:
     {
       "diseaseName": "string",
       "cropName": "string",
@@ -82,31 +82,23 @@ export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string 
       "confidenceLevel": number,
       "diagnosisSummary": "string"
     }
-
-    Analysis requirements for valid plant images:
-    1. Identify ANY plant disease regardless of plant type
-    2. Provide accurate plant/crop name identification
-    3. Give detailed environmental analysis
-    4. Include real-time metrics with practical values
-    5. Suggest both organic and IPM treatments
-    6. Outline prevention measures
-    7. Maintain high confidence threshold for diagnosis
-
-    Important Guidelines:
-    - Ensure all JSON values are properly formatted
-    - Use double quotes for all strings
-    - No markdown formatting
-    - No explanatory text outside JSON
-    - No trailing commas
-    - Realistic environmental metrics
-    - Proper units (°C, %, etc.)
-    - Confidence level between 80-100% for valid analyses only
-
-        Ensure the response is pure valid JSON with no chances of trailing commas in response and all strings are properly escaped.
-    Ensure the response is in JSON format and not in markdown format.
-        Required JSON structure:
-
-
+    
+    **Analysis Requirements:**
+    - Identify **any plant disease** with high accuracy.
+    - Provide **correct crop name** identification.
+    - Deliver **detailed environmental analysis**.
+    - Include **real-time disease metrics**.
+    - Suggest **organic and IPM-based treatments**.
+    - Outline **clear prevention measures**.
+    - Maintain **confidence level between 80%-100%** for valid diagnoses.
+    
+    **Important Guidelines:**
+    - Response must be **pure JSON** (no markdown formatting).
+    - Use **double quotes** for all strings.
+    - No **explanatory text** outside JSON.
+    - No **trailing commas**.
+    - Ensure **realistic environmental metrics** with proper units (°C, %, etc.).
+    
     ${config?.cropType ? `Crop Type: ${config.cropType}` : ''}
     ${config?.severityLevel ? `Severity Level: ${config.severityLevel}` : ''}
   `.replace(/\s+/g, ' ').trim();
