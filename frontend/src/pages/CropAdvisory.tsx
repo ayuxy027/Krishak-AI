@@ -3,7 +3,7 @@ import { getCropAnalytics } from '../ai/cropService';
 import type { CropAnalyticsResponse } from '../ai/cropService';
 import cityData from '../data/cityData.json';
 import { BarChart3, Scale, TrendingUp, AlertCircle, Info, Activity, Database, Cpu } from 'lucide-react';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import 'react-toastify/dist/ReactToastify.css';
 
 const CropAdvisory: React.FC = () => {
@@ -31,15 +31,12 @@ const CropAdvisory: React.FC = () => {
     if (!selectedCity || !selectedCrop) {
       toast.error('Please select both city and crop', {
         style: {
-          background: '#FF5757',
+          borderRadius: '10px',
+          background: '#333',
           color: '#fff',
-          padding: '16px',
-          borderRadius: '8px',
         },
-        iconTheme: {
-          primary: '#fff',
-          secondary: '#FF5757',
-        },
+        duration: 3000,
+        icon: '⚠️',
       });
       return;
     }
@@ -61,30 +58,18 @@ const CropAdvisory: React.FC = () => {
       },
       {
         style: {
-          minWidth: '250px',
-          padding: '16px',
-          borderRadius: '8px',
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
         },
         success: {
-          style: {
-            background: '#4CAF50',
-            color: '#fff',
-          },
-          iconTheme: {
-            primary: '#fff',
-            secondary: '#4CAF50',
-          },
+          duration: 3000,
+          icon: '📊',
         },
         error: {
-          style: {
-            background: '#FF5757',
-            color: '#fff',
-          },
-          iconTheme: {
-            primary: '#fff',
-            secondary: '#FF5757',
-          },
-        },
+          duration: 3000,
+          icon: '❌',
+        }
       }
     );
 
@@ -173,6 +158,7 @@ const CropAdvisory: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50">
+      <Toaster position="top-right" />
       <SystemStatus />
       <div className="px-4 py-6 mx-auto max-w-7xl md:py-12 sm:px-6 lg:px-8">
         <div className="mb-8 text-center md:mb-16">
