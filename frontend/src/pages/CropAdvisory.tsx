@@ -127,7 +127,7 @@ const CropAdvisory: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
                   <Database className="w-4 h-4 text-emerald-600" />
-                  <span className="text-sm text-gray-600">AWS S3 Deployment</span>
+                  <span className="text-sm text-gray-600">Vercel Deployment</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
