@@ -17,7 +17,32 @@ export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string 
       "yieldImpact": "string",
       "severityLevel": "mild|medium|severe",
       "symptomDescription": "string",
-      "environmentalFactors": ["string"],
+      "environmentalFactors": [
+        {
+          "factor": "string",
+          "currentValue": "string",
+          "optimalRange": "string",
+          "status": "optimal|warning|critical"
+        }
+      ],
+      "realTimeMetrics": {
+        "spreadRisk": {
+          "level": "string",
+          "value": number,
+          "trend": "increasing|stable|decreasing"
+        },
+        "diseaseProgression": {
+          "stage": "string",
+          "rate": number,
+          "nextCheckDate": "string"
+        },
+        "environmentalConditions": {
+          "temperature": number,
+          "humidity": number,
+          "soilMoisture": number,
+          "lastUpdated": "string"
+        }
+      },
       "organicTreatments": ["string"],
       "ipmStrategies": ["string"],
       "preventionPlan": ["string"],
@@ -28,10 +53,17 @@ export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string 
     Analysis requirements:
     1. Identify disease(s) with crop name
     2. Describe symptoms with technical terms
-    3. List environmental contributing factors
-    4. Provide organic treatment protocols
-    5. Recommend integrated pest management strategies
-    6. Outline prevention measures for future crops
+    3. Provide detailed environmental analysis including:
+       - Current environmental conditions
+       - Optimal ranges for the crop
+       - Status assessment (optimal/warning/critical)
+    4. Include real-time metrics with:
+       - Disease spread risk assessment
+       - Disease progression tracking
+       - Current environmental conditions
+    5. Provide organic treatment protocols
+    6. Recommend integrated pest management strategies
+    7. Outline prevention measures for future crops
 
     Important:
     - Ensure all JSON values are properly formatted
@@ -40,6 +72,8 @@ export const getDiseaseDetectionPrompt = (config?: DiseasePromptConfig): string 
     - Do not include any explanatory text outside the JSON
     - Ensure all arrays are properly closed
     - Do not include trailing commas
+    - Provide realistic values for all environmental and real-time metrics
+    - Use appropriate units for measurements (°C for temperature, % for humidity)
 
     For waste queries or spam queries:
     - Return a JSON with not applicable in all fields and confidence level 0

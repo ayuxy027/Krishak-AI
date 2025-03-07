@@ -12,7 +12,30 @@ export interface DiseaseAnalysisResult {
   yieldImpact: string;
   severityLevel: string;
   symptomDescription: string;
-  environmentalFactors: string[];
+  environmentalFactors: {
+    factor: string;
+    currentValue: string;
+    optimalRange: string;
+    status: 'optimal' | 'warning' | 'critical';
+  }[];
+  realTimeMetrics: {
+    spreadRisk: {
+      level: string;
+      value: number;
+      trend: 'increasing' | 'stable' | 'decreasing';
+    };
+    diseaseProgression: {
+      stage: string;
+      rate: number;
+      nextCheckDate: string;
+    };
+    environmentalConditions: {
+      temperature: number;
+      humidity: number;
+      soilMoisture: number;
+      lastUpdated: string;
+    };
+  };
   organicTreatments: string[];
   ipmStrategies: string[];
   preventionPlan: string[];

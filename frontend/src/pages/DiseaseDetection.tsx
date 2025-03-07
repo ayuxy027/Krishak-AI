@@ -205,12 +205,6 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
     },
   ];
 
-  const getStatusColor = (confidence: number): string => {
-    if (confidence >= 0.8) return 'green';
-    if (confidence >= 0.6) return 'yellow';
-    return 'red';
-  };
-
   return (
     <motion.div
       initial="initial"
@@ -490,6 +484,7 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                       <tr className="border-b border-gray-200">
                         <th className="pb-3 text-sm font-medium text-left text-gray-500">Factor</th>
                         <th className="pb-3 text-sm font-medium text-left text-gray-500">Current Value</th>
+                        <th className="pb-3 text-sm font-medium text-left text-gray-500">Optimal Range</th>
                         <th className="pb-3 text-sm font-medium text-left text-gray-500">Status</th>
                       </tr>
                     </thead>
@@ -497,12 +492,20 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                       {analysisResult.environmentalFactors.map((factor, index) => (
                         <tr key={index} className="border-b border-gray-100">
                           <td className="py-3 text-sm text-gray-900 capitalize">
-                            {factor}
+                            {factor.factor}
                           </td>
-                          <td className="py-3 text-sm font-medium text-gray-900">N/A</td>
+                          <td className="py-3 text-sm font-medium text-gray-900">{factor.currentValue}</td>
+                          <td className="py-3 text-sm text-gray-600">{factor.optimalRange}</td>
                           <td className="py-3">
-                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(analysisResult.confidenceLevel)}`}>
-                              Monitoring
+                            <span className={clsx(
+                              "px-3 py-1 text-xs font-medium rounded-full",
+                              {
+                                "bg-green-100 text-green-700": factor.status === "optimal",
+                                "bg-yellow-100 text-yellow-700": factor.status === "warning",
+                                "bg-red-100 text-red-700": factor.status === "critical"
+                              }
+                            )}>
+                              {factor.status.toUpperCase()}
                             </span>
                           </td>
                         </tr>
@@ -610,16 +613,55 @@ const DiseaseDetection: React.FC<DiseaseDetectionProps> = ({
                 </span>
               </motion.div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {/* Spread Risk */}
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600">Spread Risk</p>
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-xl font-semibold text-gray-900">N/A</span>
+                    <div>
+                      <span className="text-xl font-semibold text-gray-900">{analysisResult.realTimeMetrics.spreadRisk.level}</span>
+                      <span className="ml-2 text-sm text-gray-500">({analysisResult.realTimeMetrics.spreadRisk.value}%)</span>
+                    </div>
                     <motion.div
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 2 }}
-                      className="w-3 h-3 bg-gray-500 rounded-full"
+                      className={clsx("w-3 h-3 rounded-full", {
+                        "bg-red-500": analysisResult.realTimeMetrics.spreadRisk.trend === "increasing",
+                        "bg-yellow-500": analysisResult.realTimeMetrics.spreadRisk.trend === "stable",
+                        "bg-green-500": analysisResult.realTimeMetrics.spreadRisk.trend === "decreasing"
+                      })}
                     />
                   </div>
+                  <p className="mt-2 text-xs text-gray-500 capitalize">Trend: {analysisResult.realTimeMetrics.spreadRisk.trend}</p>
+                </div>
+
+                {/* Disease Progression */}
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Disease Progression</p>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-xl font-semibold text-gray-900">{analysisResult.realTimeMetrics.diseaseProgression.stage}</span>
+                    <span className="text-sm text-gray-500">{analysisResult.realTimeMetrics.diseaseProgression.rate}% / day</span>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">Next Check: {analysisResult.realTimeMetrics.diseaseProgression.nextCheckDate}</p>
+                </div>
+
+                {/* Environmental Conditions */}
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Environmental Conditions</p>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Temperature</span>
+                      <span className="text-sm font-medium">{analysisResult.realTimeMetrics.environmentalConditions.temperature}°C</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Humidity</span>
+                      <span className="text-sm font-medium">{analysisResult.realTimeMetrics.environmentalConditions.humidity}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Soil Moisture</span>
+                      <span className="text-sm font-medium">{analysisResult.realTimeMetrics.environmentalConditions.soilMoisture}%</span>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">Last Updated: {analysisResult.realTimeMetrics.environmentalConditions.lastUpdated}</p>
                 </div>
               </div>
             </motion.div>
