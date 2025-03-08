@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Crop Detection Model </title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Detection Model</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,14 +13,12 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
-
         .container {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
         .upload-section {
             border: 2px dashed #ccc;
             padding: 20px;
@@ -28,12 +27,10 @@
             border-radius: 8px;
             transition: all 0.3s ease;
         }
-
         .upload-section.drag-over {
             border-color: #4CAF50;
             background-color: #e8f5e9;
         }
-
         #imagePreview {
             max-width: 100%;
             max-height: 400px;
@@ -42,7 +39,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
         .result-section {
             margin-top: 20px;
             padding: 20px;
@@ -50,19 +46,15 @@
             border-radius: 8px;
             display: none;
         }
-
         .prediction {
             font-size: 24px;
             color: #2c5282;
-            margin: 10px 0;
             font-weight: bold;
         }
-
         .confidence {
             font-size: 18px;
             color: #4a5568;
         }
-
         #uploadButton {
             background: #4CAF50;
             color: white;
@@ -71,14 +63,11 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin: 10px 0;
             transition: background 0.3s ease;
         }
-
         #uploadButton:hover {
             background: #45a049;
         }
-
         .loading {
             display: none;
             margin: 20px 0;
@@ -88,17 +77,14 @@
             text-align: center;
             color: #2e7d32;
         }
-
         .error-message {
             color: #dc3545;
             padding: 10px;
-            margin: 10px 0;
             border-radius: 4px;
             display: none;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <h1>Crop Detection Model</h1>
@@ -107,18 +93,13 @@
 
         <div class="upload-section" id="dropZone">
             <h2>Upload Crop Image</h2>
-            <input type="file" id="imageInput" accept="image/*" style="display: none;">
-            <button id="uploadButton" onclick="document.getElementById('imageInput').click()">
-                Choose Image
-            </button>
+            <input type="file" id="imageInput" accept="image/*" hidden>
+            <button id="uploadButton">Choose Image</button>
             <p>Drag and drop an image here or click the button above</p>
             <p id="supportedCrops">Loading supported crops...</p>
         </div>
 
-        <div id="loading" class="loading">
-            Analyzing image... Please wait...
-        </div>
-
+        <div id="loading" class="loading">Analyzing image... Please wait...</div>
         <div id="errorMessage" class="error-message"></div>
 
         <img id="imagePreview">
@@ -134,124 +115,74 @@
         let model;
         let labels = [];
 
-        // Load the model and labels from ml directory
+        // Load model and labels
         async function initialize() {
             try {
-                // Update model status
                 document.getElementById('modelStatus').style.display = 'block';
-                document.getElementById('modelStatus').textContent = 'Loading model...';
 
-                // Load model from the correct path (in ml directory)
-                model = await tf.loadLayersModel('/ml/model.json');
+                model = await tf.loadLayersModel(window.location.origin + '/ml/model.json');
 
-                // Load labels from metadata (in ml directory)
                 const metadataResponse = await fetch('/ml/metadata.json');
-                if (!metadataResponse.ok) {
-                    throw new Error('Failed to load metadata');
-                }
-                const metadata = await metadataResponse.json();
+                if (!metadataResponse.ok) throw new Error('Failed to load metadata');
 
+                const metadata = await metadataResponse.json();
                 labels = metadata.labels || [];
 
-                // Update UI
                 document.getElementById('modelStatus').style.display = 'none';
                 document.getElementById('supportedCrops').textContent =
                     `Supported crops: ${labels.join(', ')}`;
-
-                console.log('Model and labels loaded successfully');
             } catch (error) {
-                console.error('Error initializing:', error);
-                document.getElementById('modelStatus').textContent =
-                    'Error loading model: ' + error.message;
-                document.getElementById('modelStatus').style.display = 'block';
-                document.getElementById('errorMessage').textContent =
-                    'Failed to initialize model. Please check console for details.';
+                document.getElementById('modelStatus').textContent = 'Error loading model.';
+                document.getElementById('errorMessage').textContent = error.message;
                 document.getElementById('errorMessage').style.display = 'block';
             }
         }
 
-        // Process image and make prediction
         async function processImage(imageElement) {
             try {
-                // Preprocess image
                 let tensor = tf.browser.fromPixels(imageElement)
-                    .resizeNearestNeighbor([224, 224]) // resize to model's expected size
+                    .resizeNearestNeighbor([224, 224])
                     .toFloat()
-                    .expandDims();
+                    .expandDims()
+                    .div(255.0);
 
-                // Normalize image
-                tensor = tensor.div(255.0);
-
-                // Make prediction
                 const predictions = await model.predict(tensor).data();
+                tensor.dispose();
 
-                // Get top prediction
                 const topPrediction = Array.from(predictions)
                     .map((prob, i) => ({ probability: prob, label: labels[i] }))
                     .sort((a, b) => b.probability - a.probability)[0];
 
-                // Update UI
                 document.getElementById('prediction').textContent =
                     `Detected: ${topPrediction.label}`;
                 document.getElementById('confidence').textContent =
                     `Confidence: ${(topPrediction.probability * 100).toFixed(2)}%`;
                 document.getElementById('resultSection').style.display = 'block';
-
-                // Cleanup
-                tensor.dispose();
             } catch (error) {
-                console.error('Error processing image:', error);
                 document.getElementById('errorMessage').textContent =
-                    'Error processing image. Please try again.';
+                    'Error processing image.';
                 document.getElementById('errorMessage').style.display = 'block';
             }
         }
 
-        // Handle image upload
-        document.getElementById('imageInput').addEventListener('change', function (e) {
-            handleImageUpload(e.target.files[0]);
-        });
-
-        // Handle drag and drop
-        const dropZone = document.getElementById('dropZone');
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            if (file) handleImageUpload(file);
-        });
-
         function handleImageUpload(file) {
             if (!file || !file.type.startsWith('image/')) {
                 document.getElementById('errorMessage').textContent =
-                    'Please upload an image file.';
+                    'Please upload a valid image.';
                 document.getElementById('errorMessage').style.display = 'block';
                 return;
             }
 
-            // Reset UI
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('loading').style.display = 'block';
             document.getElementById('resultSection').style.display = 'none';
 
-            // Load and display image
             const reader = new FileReader();
             reader.onload = function (event) {
                 const img = document.getElementById('imagePreview');
                 img.src = event.target.result;
                 img.style.display = 'block';
 
-                // Wait for image to load before processing
                 img.onload = async () => {
                     await processImage(img);
                     document.getElementById('loading').style.display = 'none';
@@ -260,12 +191,30 @@
             reader.readAsDataURL(file);
         }
 
-        // Initialize when page loads
+        document.getElementById('uploadButton').addEventListener('click', () => {
+            document.getElementById('imageInput').click();
+        });
+
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            handleImageUpload(e.target.files[0]);
+        });
+
+        document.getElementById('dropZone').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        });
+
+        document.getElementById('dropZone').addEventListener('dragleave', (e) => {
+            e.currentTarget.classList.remove('drag-over');
+        });
+
+        document.getElementById('dropZone').addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            handleImageUpload(e.dataTransfer.files[0]);
+        });
+
         initialize();
     </script>
 </body>
-
 </html>
-
-
-
