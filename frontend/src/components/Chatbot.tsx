@@ -16,6 +16,8 @@ interface Message {
   text: string
   sender: "user" | "ai"
   animate?: boolean
+  timestamp: number
+  status?: "sending" | "sent" | "error"
 }
 
 interface AgriTechChatbotProps {
@@ -25,6 +27,7 @@ interface AgriTechChatbotProps {
   language?: "en" | "es" | "fr"
   showTimer?: boolean
   showCharacterCount?: boolean
+  userLocation?: string
 }
 
 const Button: React.FC<
@@ -164,7 +167,6 @@ const CustomLink: React.FC<{ href: string; children: React.ReactNode }> = ({ hre
 const MarkdownMessage: React.FC<{ content: string; darkMode: boolean }> = ({ content, darkMode }) => (
   <ReactMarkdown
     remarkPlugins={[remarkGfm]}
-    className="max-w-none prose prose-sm dark:prose-invert"
     components={{
       code({ node, className, children, ...props }) {
         const match = /language-(\w+)/.exec(className || '')
@@ -260,6 +262,7 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
   language = "en",
   showTimer = true,
   showCharacterCount = true,
+  userLocation,
 }) => {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState<string>("")
@@ -269,8 +272,10 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [cooldown, setCooldown] = useState<number>(0)
   const [lastMessageTime, setLastMessageTime] = useState<number>(0)
+  const [currentStreamingMessage, setCurrentStreamingMessage] = useState<string>("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   const t = translations[language]
 
@@ -338,28 +343,54 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
     setIsLoading(true)
     setError(null)
     const userMessage = input
-    setMessages((prev) => [...prev, { text: userMessage, sender: "user" }])
+    setMessages((prev) => [...prev, { text: userMessage, sender: "user", timestamp: currentTime, status: "sending" }])
     setInput("")
     setLastMessageTime(currentTime)
     setCooldown(cooldownDuration)
 
     try {
-      const aiResponse = await aiService.getAIResponse(userMessage)
-      setMessages((prev) => [...prev, { text: aiResponse, sender: "ai" }])
+      let accumulatedResponse = ""
+
+      await aiService.getAIResponse(
+        userMessage,
+        {
+          userLanguage: language,
+          userLocation,
+          previousMessages: messages.map(msg => ({
+            role: msg.sender === "user" ? "user" : "assistant",
+            content: msg.text
+          }))
+        },
+        ({ text, done }) => {
+          if (!done) {
+            accumulatedResponse += text
+            setCurrentStreamingMessage(accumulatedResponse)
+          } else {
+            setMessages(prev => [
+              ...prev.slice(0, -1),
+              { text: userMessage, sender: "user", timestamp: currentTime, status: "sent" },
+              { text: accumulatedResponse, sender: "ai", timestamp: Date.now() }
+            ])
+            setCurrentStreamingMessage("")
+          }
+        }
+      )
     } catch (error) {
       console.error("Error getting AI response:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
       setMessages((prev) => [
-        ...prev,
+        ...prev.slice(0, -1),
+        { text: userMessage, sender: "user", timestamp: currentTime, status: "error" },
         {
           text: "I apologize, but I'm having trouble responding right now. Please try again.",
           sender: "ai",
+          timestamp: Date.now()
         },
       ])
     } finally {
       setIsLoading(false)
     }
-  }, [input, characterLimit, cooldownDuration, lastMessageTime, t])
+  }, [input, characterLimit, cooldownDuration, lastMessageTime, t, language, userLocation, messages])
 
   const handleClearChat = useCallback(() => {
     setMessages([])
@@ -482,14 +513,19 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   : "bg-gradient-to-br via-white from-primary-100/90 to-primary-200/90"
                   }`}
               />
-              <div className="overflow-y-auto relative p-4 space-y-4 h-full sm:p-6">
+              <div
+                ref={chatContainerRef}
+                className="overflow-y-auto relative p-4 space-y-4 h-full sm:p-6"
+              >
                 {error && (
-                  <div
-                    className={`p-2 text-sm rounded-md ${darkMode ? "text-red-300 bg-red-900/20" : "text-red-600 bg-red-100/20"
-                      }`}
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className={`p-2 text-sm rounded-md ${darkMode ? "text-red-300 bg-red-900/20" : "text-red-600 bg-red-100/20"}`}
                   >
                     {error}
-                  </div>
+                  </motion.div>
                 )}
                 {messages.length === 0 && (
                   <motion.div
@@ -507,7 +543,21 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                     darkMode={darkMode}
                   />
                 ))}
-                {isLoading && <ThinkingIndicator darkMode={darkMode} />}
+                {currentStreamingMessage && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-start"
+                  >
+                    <div
+                      className={`p-3 rounded-2xl max-w-[70%] ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
+                        }`}
+                    >
+                      <MarkdownMessage content={currentStreamingMessage} darkMode={darkMode} />
+                    </div>
+                  </motion.div>
+                )}
+                {isLoading && !currentStreamingMessage && <ThinkingIndicator darkMode={darkMode} />}
                 <div ref={messagesEndRef} />
               </div>
             </div>

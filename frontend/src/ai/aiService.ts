@@ -1,140 +1,114 @@
-import axios from "axios"
-import getAIPrompt from "./aiPrompt"
+import Groq from "groq-sdk";
+import getAIPrompt, { KisanAIContext } from "./aiPrompt";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const API_URL = import.meta.env.VITE_GEMINI_API_URL
+const groq = new Groq({
+  apiKey: import.meta.env.VITE_GROQ_API_KEY,
+  dangerouslyAllowBrowser: true
+});
 
-interface GeminiPart {
-  text: string
+interface GroqMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
 }
 
-interface GeminiContent {
-  parts: GeminiPart[]
+interface StreamingResponse {
+  text: string;
+  done: boolean;
 }
 
-interface GeminiRequest {
-  contents: GeminiContent[]
-  generationConfig?: {
-    temperature?: number
-    topK?: number
-    topP?: number
-    maxOutputTokens?: number
-    stopSequences?: string[]
-  }
-  safetySettings?: {
-    category: string
-    threshold: string
-  }[]
-}
-
-interface GeminiResponse {
-  candidates: {
-    content: {
-      parts: {
-        text: string
-      }[]
-    }
-    finishReason: string
-    safetyRatings: {
-      category: string
-      probability: string
-    }[]
-  }[]
-  promptFeedback: {
-    safetyRatings: {
-      category: string
-      probability: string
-    }[]
-  }
-}
-
-export const getAIResponse = async (userInput: string): Promise<string> => {
-  if (!API_KEY) {
-    throw new Error("Missing required GEMINI_API_KEY environment variable")
+export const getAIResponse = async (
+  userInput: string,
+  context: Partial<KisanAIContext> = {},
+  onStream?: (response: StreamingResponse) => void
+): Promise<string> => {
+  if (!import.meta.env.VITE_GROQ_API_KEY) {
+    throw new Error("Missing required VITE_GROQ_API_KEY environment variable");
   }
 
-  if (!API_URL) {
-    throw new Error("Missing required GEMINI_API_URL environment variable")
-  }
+  const fullContext: KisanAIContext = {
+    userInput,
+    userLanguage: context.userLanguage || "en",
+    userLocation: context.userLocation,
+    previousMessages: context.previousMessages || []
+  };
 
-  const requestData: GeminiRequest = {
-    contents: [
-      {
-        parts: [
-          {
-            text: getAIPrompt(userInput),
-          },
-        ],
-      },
-    ],
-    generationConfig: {
-      temperature: 0.7, // Slightly reduced for more consistent translations
-      topK: 40,
-      topP: 0.9,
-      maxOutputTokens: 4096,
-      stopSequences: ["Human:", "Assistant:"],
+  const fullPrompt = getAIPrompt(fullContext);
+  const [systemPrompt, userMessage] = fullPrompt.split('USER QUERY:');
+  
+  const messages: GroqMessage[] = [
+    {
+      role: "system",
+      content: systemPrompt.trim()
     },
-    safetySettings: [
-      {
-        category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-      {
-        category: "HARM_CATEGORY_HATE_SPEECH",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-      {
-        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-      {
-        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
-      },
-    ],
-  }
+    {
+      role: "user",
+      content: userMessage.trim()
+    }
+  ];
 
   try {
-    const response = await axios.post<GeminiResponse>(`${API_URL}?key=${API_KEY}`, requestData, {
-      headers: {
-        "Content-Type": "application/json",
-        "Accept-Language": "en,hi,mr,te,ta,kn,gu,bn,pa,ml", // Support for major Indian languages
-      },
-    })
+    if (onStream) {
+      // Streaming mode with 50% slower speed
+      const stream = await groq.chat.completions.create({
+        messages,
+        model: "llama3-70b-8192",
+        temperature: 0.7,
+        max_tokens: 1024,
+        top_p: 0.9,
+        stream: true,
+        stop: ["Human:", "Assistant:"]
+      });
 
-    if (!response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-      throw new Error("Invalid response format from Gemini API")
+      let accumulatedResponse = "";
+      
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        accumulatedResponse += content;
+        onStream({ text: content, done: false });
+        // Add delay to slow down streaming
+        await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay between chunks
+      }
+
+      onStream({ text: "", done: true });
+      return postProcessResponse(accumulatedResponse);
+    } else {
+      // Non-streaming mode with full speed
+      const chatCompletion = await groq.chat.completions.create({
+        messages,
+        model: "llama3-70b-8192",
+        temperature: 0.7,
+        max_tokens: 1024,
+        top_p: 0.9,
+        stream: false,
+        stop: ["Human:", "Assistant:"]
+      });
+
+      if (!chatCompletion.choices[0]?.message?.content) {
+        throw new Error("Empty response from Groq API");
+      }
+
+      return postProcessResponse(chatCompletion.choices[0].message.content);
     }
-
-    const aiResponse = response.data.candidates[0].content.parts[0].text
-
-    // Post-process the response to ensure proper formatting
-    const processedResponse = postProcessResponse(aiResponse)
-    return processedResponse
-
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Kisan-AI API Error:", {
-        status: error.response?.status,
-        data: error.response?.data,
-      })
-      throw new Error(`Kisan-AI API Error: ${error.response?.data?.error?.message || error.message}`)
-    }
-    console.error("Error fetching response from Kisan-AI API:", error)
-    throw error
+    console.error("Groq API Error:", error);
+    throw new Error(`Groq API Error: ${(error as Error).message}`);
   }
 }
 
 function postProcessResponse(response: string): string {
-  // Ensure markdown formatting is preserved
-  // Replace currency symbols appropriately
-  // Maintain proper line breaks and spacing
   return response
-    .replace(/\$(\d+)/g, '₹$1') // Convert USD to INR symbol
-    .replace(/(\d+),(\d{3})/g, '$1,$2') // Maintain number formatting
-    .trim()
+    .replace(/\$(\d+)/g, '₹$1') // Convert $ to ₹
+    .replace(/\b(\d+)\s*(?:acres?|hectares?)\b/gi, (_match, num) => {
+      const acres = parseFloat(num);
+      const hectares = acres * 0.404686;
+      return `${num} acres (${hectares.toFixed(2)} hectares)`;
+    })
+    .replace(/\b(\d+)\s*(?:kg|kilograms?)\b/gi, (_match, num) => {
+      const kg = parseFloat(num);
+      const quintals = kg / 100;
+      return `${num} kg (${quintals.toFixed(2)} quintals)`;
+    })
+    .trim();
 }
 
-export default {
-  getAIResponse,
-}
+export default { getAIResponse };
