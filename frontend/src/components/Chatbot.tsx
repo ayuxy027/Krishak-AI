@@ -1,16 +1,28 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence, type Variants } from "framer-motion"
-import { Trash2Icon, X, Minimize2, Maximize2, Send } from "lucide-react"
+import {
+  Trash2,
+  X,
+  Minimize2,
+  Maximize2,
+  Send,
+  Bot,
+  Tractor,
+  Sprout,
+  Bot as RobotIcon,
+  Smartphone,
+  Loader
+} from "lucide-react"
 import { FaRocketchat } from "react-icons/fa"
 import aiService from "../ai/aiService"
-import { useNavigate } from 'react-router-dom'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { useNavigate } from "react-router-dom"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 interface Message {
   text: string
@@ -30,81 +42,67 @@ interface AgriTechChatbotProps {
   userLocation?: string
 }
 
-const Button: React.FC<
+const Button = React.forwardRef<
+  HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { darkMode: boolean; variant?: "primary" | "secondary" }
-> = ({ className = "", darkMode, variant = "primary", children, ...props }) => {
+>(({ className = "", darkMode, variant = "primary", children, ...props }, ref) => {
   const baseStyle =
-    "inline-flex items-center justify-center text-sm font-medium transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:pointer-events-none rounded-full"
+    "inline-flex items-center justify-center text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:pointer-events-none rounded-xl"
   const variantStyles = {
     primary: darkMode
-      ? "bg-primary-700 hover:bg-primary-600 text-white"
-      : "bg-primary-600 hover:bg-primary-500 text-white",
+      ? "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 focus:ring-primary-500"
+      : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 focus:ring-primary-500",
     secondary: darkMode
-      ? "bg-gray-800 hover:bg-gray-700 text-primary-300"
-      : "bg-gray-100 hover:bg-gray-200 text-primary-700",
+      ? "bg-gray-800/90 hover:bg-gray-700/90 text-primary-300 border border-primary-700/30 hover:border-primary-600/50 focus:ring-primary-500"
+      : "bg-white/90 hover:bg-gray-50/90 text-primary-700 border border-primary-200/30 hover:border-primary-300/50 focus:ring-primary-500",
   }
 
   return (
-    <button className={`${baseStyle} ${variantStyles[variant]} ${className}`} {...props}>
+    <button ref={ref} className={`${baseStyle} ${variantStyles[variant]} ${className}`} {...props}>
       {children}
     </button>
   )
-}
+})
 
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { darkMode: boolean }> = ({
-  className = "",
-  darkMode,
-  ...props
-}) => {
+Button.displayName = "Button"
+
+const Input = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement> & { darkMode: boolean }
+>(({ className = "", darkMode, ...props }, ref) => {
   return (
     <input
-      className={`flex px-4 py-2 w-full h-12 text-sm rounded-full border transition-all duration-300 backdrop-blur-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${darkMode
-        ? "bg-gray-900/80 border-primary-700 focus:ring-primary-600 text-primary-200"
-        : "bg-gray-50/80 border-primary-500 focus:ring-primary-600 text-primary-800"
+      ref={ref}
+      className={`flex px-4 py-3 w-full text-sm rounded-xl border shadow-lg transition-all duration-300 backdrop-blur-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:border-transparent ${darkMode
+        ? "bg-gray-800/90 border-primary-700/30 focus:ring-primary-500 text-primary-200"
+        : "bg-white/90 border-primary-200/30 focus:ring-primary-500 text-primary-800"
         } ${className}`}
       {...props}
     />
   )
-}
+})
+
+Input.displayName = "Input"
 
 const ThinkingIndicator: React.FC<{ darkMode: boolean }> = ({ darkMode }) => (
   <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0 }}
-    transition={{ duration: 0.5 }}
+    transition={{ duration: 0.3 }}
     className="flex justify-start"
   >
     <div
-      className={`p-3 rounded-2xl max-w-[70%] ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
+      className={`p-4 rounded-xl max-w-[70%] backdrop-blur-sm shadow-lg ${darkMode ? "bg-gray-800/90 text-primary-300" : "bg-white/90 text-primary-700"
         }`}
     >
       <motion.div
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5, ease: "easeInOut" }}
-        className="flex items-center text-sm font-medium"
+        className="flex gap-2 items-center text-sm font-medium"
       >
-        <span className="mr-2">Thinking</span>
-        <span className="flex space-x-1">
-          <motion.span
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5, repeatDelay: 0.5 }}
-          >
-            .
-          </motion.span>
-          <motion.span
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5, delay: 0.5, repeatDelay: 0.5 }}
-          >
-            .
-          </motion.span>
-          <motion.span
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5, delay: 1, repeatDelay: 0.5 }}
-          >
-            .
-          </motion.span>
-        </span>
+        <Loader className="w-4 h-4 animate-spin" />
+        <span>Thinking</span>
       </motion.div>
     </div>
   </motion.div>
@@ -205,18 +203,18 @@ const MessageComponent: React.FC<{ message: Message; darkMode: boolean }> = ({ m
   <motion.div
     initial={message.animate ? { opacity: 0, y: 10 } : false}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3 }}
+    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
   >
     <div
-      className={`max-w-[90%] sm:max-w-[80%] p-2 sm:p-3 md:p-4 rounded-2xl backdrop-blur-sm shadow-lg 
+      className={`max-w-[90%] sm:max-w-[80%] p-4 rounded-xl backdrop-blur-sm shadow-lg 
       ${message.sender === "user"
           ? darkMode
-            ? "bg-gradient-to-br from-primary-700 to-primary-900 text-white"
-            : "bg-gradient-to-br from-primary-600 to-primary-800 text-white"
+            ? "bg-gradient-to-br from-primary-600 to-primary-800 text-white shadow-primary-500/20"
+            : "bg-gradient-to-br from-primary-600 to-primary-800 text-white shadow-primary-500/20"
           : darkMode
-            ? "bg-gray-800/80 text-primary-300 border border-primary-900/20"
-            : "bg-gray-100/80 text-primary-700 border border-primary-200/20"
+            ? "bg-gray-800/90 text-primary-300 border border-primary-700/20"
+            : "bg-white/90 text-primary-700 border border-primary-200/20"
         }`}
     >
       {message.sender === "ai" ? (
@@ -230,26 +228,48 @@ const MessageComponent: React.FC<{ message: Message; darkMode: boolean }> = ({ m
 
 const QuickActions: React.FC<{ darkMode: boolean; onSelect: (action: string) => void }> = ({ darkMode, onSelect }) => {
   const actions = [
-    { icon: "🚜", label: "Precision Farming", action: "What is precision agriculture and how can it benefit my farm?" },
-    { icon: "🌱", label: "Smart Solutions", action: "Tell me about smart farming technologies for small farms" },
-    { icon: "🤖", label: "Agri-Robotics", action: "How can I start using agricultural robots on my farm?" },
-    { icon: "📱", label: "Digital Tools", action: "What are the essential digital farming tools for beginners?" },
+    {
+      icon: <Tractor className="w-5 h-5" />,
+      label: "Precision Farming",
+      action: "What is precision agriculture and how can it benefit my farm?",
+    },
+    {
+      icon: <Sprout className="w-5 h-5" />,
+      label: "Smart Solutions",
+      action: "Tell me about smart farming technologies for small farms",
+    },
+    {
+      icon: <RobotIcon className="w-5 h-5" />,
+      label: "Agri-Robotics",
+      action: "How can I start using agricultural robots on my farm?",
+    },
+    {
+      icon: <Smartphone className="w-5 h-5" />,
+      label: "Digital Tools",
+      action: "What are the essential digital farming tools for beginners?",
+    },
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-2 mb-4">
+    <div className="grid grid-cols-2 gap-3 mb-6">
       {actions.map(({ icon, label, action }) => (
-        <button
+        <motion.button
           key={label}
           onClick={() => onSelect(action)}
-          className={`flex items-center p-3 rounded-lg transition-all duration-300 ${darkMode
-            ? "border bg-gray-800/50 hover:bg-gray-700/50 border-primary-800/30"
-            : "border bg-gray-100/50 hover:bg-gray-200/50 border-primary-200/30"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className={`flex items-center p-4 rounded-xl transition-all duration-300 group relative overflow-hidden ${darkMode
+            ? "border bg-gray-800/90 border-primary-700/30 hover:border-primary-600/50"
+            : "border bg-white/90 border-primary-200/30 hover:border-primary-300/50"
             }`}
         >
-          <span className="mr-2 text-xl">{icon}</span>
-          <span className="text-sm">{label}</span>
-        </button>
+          <motion.div
+            className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-10 ${darkMode ? "bg-primary-400" : "bg-primary-500"
+              }`}
+          />
+          <span className={`mr-3 ${darkMode ? "text-primary-300" : "text-primary-600"}`}>{icon}</span>
+          <span className="text-sm font-medium">{label}</span>
+        </motion.button>
       ))}
     </div>
   )
@@ -430,7 +450,7 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
   }
 
   return (
-    <div className="fixed right-2 bottom-2 z-50 sm:right-4 sm:bottom-4 md:right-8 md:bottom-8">
+    <div className="fixed right-4 bottom-4 z-50 md:right-8 md:bottom-8">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -439,12 +459,12 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
             exit="closed"
             variants={containerVariants}
             custom={isExpanded}
-            className={`flex flex-col overflow-hidden shadow-2xl rounded-3xl backdrop-blur-sm ${darkMode ? "bg-gray-900/95" : "bg-white/95"
+            className={`flex flex-col overflow-hidden shadow-2xl rounded-2xl backdrop-blur-sm ${darkMode ? "bg-gray-900/95" : "bg-white/95"
               }`}
             style={{
               boxShadow: darkMode
-                ? "0 10px 25px -5px rgba(16,185,129,0.3), 0 8px 10px -6px rgba(16,185,129,0.2)"
-                : "0 10px 25px -5px rgba(5,150,105,0.3), 0 8px 10px -6px rgba(5,150,105,0.2)",
+                ? "0 25px 50px -12px rgba(16,185,129,0.25)"
+                : "0 25px 50px -12px rgba(5,150,105,0.25)",
             }}
           >
             <motion.div
@@ -456,21 +476,21 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                 bottom: 0,
               }}
               dragElastic={0.1}
-              className={`flex justify-between items-center p-4 text-white rounded-t-3xl cursor-move sm:p-6 ${darkMode
-                ? "bg-gradient-to-r from-primary-700 to-primary-900"
+              className={`flex justify-between items-center p-6 text-white rounded-t-2xl cursor-move ${darkMode
+                ? "bg-gradient-to-r from-primary-600 to-primary-800"
                 : "bg-gradient-to-r from-primary-600 to-primary-800"
                 }`}
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <div
-                  className={`flex justify-center items-center w-10 h-10 text-base font-bold rounded-full shadow-inner sm:w-12 sm:h-12 sm:text-lg backdrop-blur-sm ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
+                  className={`flex justify-center items-center w-12 h-12 rounded-xl shadow-inner backdrop-blur-sm ${darkMode ? "bg-gray-800/90 text-primary-300" : "bg-white/90 text-primary-700"
                     }`}
                 >
-                  AI
+                  <Bot className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold sm:text-md">Kisan AI</h3>
-                  <p className="text-xs opacity-90 sm:text-sm">Your Agriculture Innovation Guide</p>
+                  <h3 className="text-lg font-semibold">Krishak AI</h3>
+                  <p className="text-sm opacity-90">Your Agriculture Innovation Guide</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -478,51 +498,51 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   darkMode={darkMode}
                   variant="secondary"
                   onClick={handleClearChat}
-                  className="p-2 hover:bg-opacity-80"
+                  className="p-2"
                 >
-                  <Trash2Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Trash2 className="w-5 h-5" />
                 </Button>
                 <Button
                   darkMode={darkMode}
                   variant="secondary"
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="p-2 hover:bg-opacity-80"
+                  className="p-2"
                 >
                   {isExpanded ? (
-                    <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Minimize2 className="w-5 h-5" />
                   ) : (
-                    <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Maximize2 className="w-5 h-5" />
                   )}
                 </Button>
                 <Button
                   darkMode={darkMode}
                   variant="secondary"
                   onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-opacity-80"
+                  className="p-2"
                 >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <X className="w-5 h-5" />
                 </Button>
               </div>
             </motion.div>
 
             <div className="overflow-hidden relative flex-1">
-              <div className="absolute inset-0 bg-noise opacity-85" />
               <div
                 className={`absolute inset-0 ${darkMode
-                  ? "bg-gradient-to-br via-gray-900 from-primary-900/90 to-primary-950/90"
-                  : "bg-gradient-to-br via-white from-primary-100/90 to-primary-200/90"
+                  ? "bg-gradient-to-br from-gray-900 via-gray-900 to-primary-900/10"
+                  : "bg-gradient-to-br from-white via-white to-primary-50/10"
                   }`}
               />
               <div
                 ref={chatContainerRef}
-                className="overflow-y-auto relative p-4 space-y-4 h-full sm:p-6"
+                className="overflow-y-auto relative p-6 space-y-6 h-full scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent"
               >
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className={`p-2 text-sm rounded-md ${darkMode ? "text-red-300 bg-red-900/20" : "text-red-600 bg-red-100/20"}`}
+                    className={`p-4 text-sm rounded-xl shadow-lg ${darkMode ? "text-red-300 bg-red-900/20" : "text-red-600 bg-red-50/90"
+                      }`}
                   >
                     {error}
                   </motion.div>
@@ -547,14 +567,10 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex justify-start"
+                    className={`p-4 rounded-xl max-w-[80%] shadow-lg ${darkMode ? "bg-gray-800/90 text-primary-300" : "bg-white/90 text-primary-700"
+                      }`}
                   >
-                    <div
-                      className={`p-3 rounded-2xl max-w-[70%] ${darkMode ? "bg-gray-800/80 text-primary-300" : "bg-gray-100/80 text-primary-700"
-                        }`}
-                    >
-                      <MarkdownMessage content={currentStreamingMessage} darkMode={darkMode} />
-                    </div>
+                    <MarkdownMessage content={currentStreamingMessage} darkMode={darkMode} />
                   </motion.div>
                 )}
                 {isLoading && !currentStreamingMessage && <ThinkingIndicator darkMode={darkMode} />}
@@ -563,7 +579,7 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
             </div>
 
             <div
-              className={`relative p-4 sm:p-6 ${darkMode
+              className={`relative p-6 ${darkMode
                 ? "bg-gradient-to-t from-gray-900 via-gray-900 to-transparent"
                 : "bg-gradient-to-t from-white via-white to-transparent"
                 }`}
@@ -573,33 +589,29 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   {characterLimit - input.length} {t.remainingChars}
                 </div>
               )}
-              <div className="flex mb-4 space-x-2">
+              <div className="flex mb-4 space-x-3">
                 <Input
-                  // @ts-ignore
                   ref={inputRef}
                   type="text"
                   value={input}
                   onChange={handleInputChange}
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
                   placeholder={t.placeholder}
-                  className="flex-grow text-sm shadow-lg sm:text-base"
+                  className="flex-grow"
                   darkMode={darkMode}
                   disabled={cooldown > 0}
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={isLoading || cooldown > 0 || input.length > characterLimit}
-                  className={`p-2 sm:p-3 shadow-lg transition-all duration-300 ${darkMode
-                    ? "bg-gradient-to-r from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-700"
-                    : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600"
-                    }`}
+                  className="p-3"
                   darkMode={darkMode}
                 >
-                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Send className="w-5 h-5" />
                 </Button>
               </div>
               {showTimer && cooldown > 0 && (
-                <div className={`text-xs text-center ${darkMode ? "text-primary-300" : "text-primary-700"}`}>
+                <div className={`mb-4 text-xs text-center ${darkMode ? "text-primary-300" : "text-primary-700"}`}>
                   {t.cooldownMessage} {cooldown} {t.seconds}
                 </div>
               )}
@@ -608,10 +620,7 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
                   <Button
                     key={index}
                     onClick={() => setInput(question)}
-                    className={`px-3 py-1 text-xs rounded-full border transition-all duration-300 backdrop-blur-sm ${darkMode
-                      ? "border-primary-700/20 hover:bg-gray-800/50 hover:border-primary-700"
-                      : "border-primary-600/20 hover:bg-gray-100/50 hover:border-primary-600"
-                      }`}
+                    className="px-4 py-2 text-xs"
                     darkMode={darkMode}
                     variant="secondary"
                     disabled={cooldown > 0}
@@ -630,9 +639,9 @@ const AgriTechChatbot: React.FC<AgriTechChatbotProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen(true)}
-          className={`p-4 text-white rounded-full shadow-lg transition-colors duration-500 ease-in-out ${darkMode
-            ? "bg-gradient-to-r from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-700"
-            : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600"
+          className={`p-4 text-white rounded-xl shadow-lg transition-all duration-300 ${darkMode
+            ? "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600 shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30"
+            : "bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-600 shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30"
             }`}
         >
           <FaRocketchat className="w-6 h-6" />
